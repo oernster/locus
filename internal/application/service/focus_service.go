@@ -36,6 +36,16 @@ func NewFocusService(sessionRepo repository.SessionRepository, reader FocusReade
 	return &FocusService{sessionRepo: sessionRepo, reader: reader}
 }
 
+// GetFocusDataForTimeRange returns aggregated focus data for an arbitrary Unix
+// second time range, with no stage correlation.
+func (s *FocusService) GetFocusDataForTimeRange(_ context.Context, startUnix, endUnix int64) (dto.FocusDataDTO, error) {
+	result := s.reader.GetFocusDataForSessions([]FocusSessionWindow{{
+		StartedAt: startUnix,
+		EndedAt:   endUnix,
+	}})
+	return result, nil
+}
+
 // GetFocusDataForStage returns focus-reader data correlated with locus sessions
 // for the given stage.
 func (s *FocusService) GetFocusDataForStage(ctx context.Context, stageId string) (dto.FocusDataDTO, error) {

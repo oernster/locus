@@ -164,3 +164,9 @@ func (a *App) RenameSnapshot(snapshotId int64, name string) (dto.SnapshotDTO, er
 func (a *App) GetFocusData(stageId string) (dto.FocusDataDTO, error) {
 	return a.focusSvc.GetFocusDataForStage(a.ctx, stageId)
 }
+
+// GetFocusDataForTimeRange returns aggregated focus data for the supplied Unix
+// second time range. The frontend computes calendar boundaries in local time.
+func (a *App) GetFocusDataForTimeRange(startUnix, endUnix int64) (dto.FocusDataDTO, error) {
+	return a.focusSvc.GetFocusDataForTimeRange(a.ctx, startUnix, endUnix)
+}

@@ -34,6 +34,7 @@ import { CommandDrawer } from "./CommandDrawer";
 import { DestructiveGuardModal } from "../../components/DestructiveGuardModal";
 import { ConfirmDangerModal } from "../../components/ConfirmDangerModal";
 import { FocusPanel } from "../focus/FocusPanel";
+import { FocusHistory } from "../focus/FocusHistory";
 
 import styles from "./Board.module.css";
 
@@ -1276,6 +1277,8 @@ export function Board() {
           </div>
         ))}
       </div>
+
+      <FocusHistory />
 
       {createFor ? (
         <CreateCommandModal
