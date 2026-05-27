@@ -5,7 +5,7 @@ Locus is a native Windows productivity tool that merges two concerns into one su
 - **Task board** — move work through a fixed four-stage workflow (Plan, Execute, Check, Done)
 - **Focus intelligence** — automatic, OS-level tracking of which applications hold your attention, built directly into Locus with no external tools required
 
-# <img width="1267" height="780" alt="locus" src="https://github.com/user-attachments/assets/ddcde910-03b4-4be0-b610-beea99587e5c" />
+# <img width="1264" height="785" alt="locus" src="https://github.com/user-attachments/assets/f1c2ce33-b67c-4b69-b49d-c8f460f6da21" />
 
 ---
 
