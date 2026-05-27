@@ -1,0 +1,904 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 100vh;
+  min-height: 0;
+}
+
+.controlSurface {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.titleLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.titleLogo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.titleRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.titleCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.stateCluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  line-height: 1;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.stateSep {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.runtimeState {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.sessionStateText {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.sessionStateButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.86);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.sessionStateButton:hover,
+.sessionStateButton:focus-visible {
+  border-color: rgba(90, 220, 140, 0.45);
+  background: rgba(255, 255, 255, 0.05);
+  outline: none;
+}
+
+.sessionGlyph {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sessionText {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sessionTimerInline {
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.70);
+}
+
+.titleMetaRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.helperRow {
+  display: flex;
+  align-items: center;
+  min-height: 18px;
+}
+
+.helperText {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.opButton {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.opButton:hover,
+.opButton:focus-visible {
+  border-color: rgba(90, 220, 140, 0.95);
+  box-shadow: 0 0 0 1px rgba(90, 220, 140, 0.18) inset;
+  outline: none;
+}
+
+.opIcon {
+  font-size: 14px;
+  line-height: 1;
+  transform: translateY(-0.5px);
+}
+
+.stopButton { }
+
+.stopIcon {
+  color: #d64545;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.stopButton:hover,
+.stopButton:focus-visible {
+  border-color: rgba(214, 69, 69, 0.55);
+  background: rgba(214, 69, 69, 0.10);
+  box-shadow: 0 0 0 1px rgba(214, 69, 69, 0.16) inset;
+}
+
+.structuralRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.structuralLeftButton,
+.structuralRightButton {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.structuralLeftButton {
+  border-color: rgba(255, 110, 110, 0.28);
+  background: rgba(255, 110, 110, 0.08);
+}
+
+.structuralLeftButton:hover,
+.structuralLeftButton:focus-visible {
+  border-color: rgba(255, 92, 92, 0.75);
+  outline: none;
+}
+
+.structuralRightButton:hover,
+.structuralRightButton:focus-visible {
+  border-color: rgba(90, 220, 140, 0.55);
+  outline: none;
+}
+
+.dropdownChevron {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.dropdownDivider {
+  height: 1px;
+  margin: 6px 6px;
+  background: rgba(255, 255, 255, 0.10);
+  border-radius: 1px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.snapshotsMenu {
+  position: relative;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 320px;
+  max-height: 320px;
+  overflow: auto;
+  border-radius: 12px;
+  background: rgba(10, 25, 55, 0.98);
+  border: 1px solid rgba(175, 210, 255, 0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  padding: 6px;
+  z-index: 50;
+}
+
+.dropdownItem {
+  width: 100%;
+  text-align: left;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.snapshotRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.snapshotRow .dropdownItem {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+.snapshotRowText {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.snapshotEditButton,
+.snapshotDeleteButton {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  font-size: 11px;
+}
+
+.snapshotEditButton:hover,
+.snapshotEditButton:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(90, 220, 140, 0.4);
+  outline: none;
+}
+
+.snapshotDeleteButton:hover,
+.snapshotDeleteButton:focus-visible {
+  background: rgba(255, 110, 110, 0.12);
+  border-color: rgba(255, 92, 92, 0.55);
+  outline: none;
+}
+
+.snapshotRenameInput {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(175, 210, 255, 0.24);
+  background: rgba(0, 0, 0, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+}
+
+.dropdownItem:hover,
+.dropdownItem:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(90, 220, 140, 0.4);
+  outline: none;
+}
+
+.dropdownEmpty {
+  padding: 10px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+}
+
+.boardName {
+  height: 34px;
+  min-width: 180px;
+  max-width: 520px;
+  flex: 1 1 320px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(175, 210, 255, 0.18);
+  background: rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  font-weight: 560;
+}
+
+.boardNameEditButton {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.12);
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+}
+
+.boardNameEditButton:hover,
+.boardNameEditButton:focus-visible {
+  border-color: rgba(90, 220, 140, 0.55);
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
+}
+
+.boardNameCue {
+  border-color: rgba(236, 170, 78, 0.55);
+}
+
+.boardName:focus-visible {
+  outline: 2px solid rgba(120, 170, 255, 0.9);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+}
+
+.error {
+  color: #ff8686;
+  font-size: 13px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(240px, 1fr));
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.boardHasActive .column:not(.columnActive) {
+  opacity: 0.82;
+  filter: saturate(0.92);
+}
+
+.boardStartMode .card {
+  cursor: pointer;
+}
+
+.boardStartMode .card:hover {
+  border-color: rgba(90, 220, 140, 0.95);
+}
+
+.column {
+  background: rgba(14, 53, 115, 0.92);
+  border: 1px solid rgba(175, 210, 255, 0.14);
+  border-radius: 10px;
+  padding: 8px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.paneSessionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.68);
+  padding: 5px 8px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-variant-numeric: tabular-nums;
+}
+
+.columnActive {
+  border-color: rgba(120, 170, 255, 0.55);
+}
+
+.columnFocused {
+  border-color: rgba(236, 170, 78, 0.35);
+}
+
+.columnDropTarget {
+  outline: 2px dashed rgba(120, 170, 255, 0.55);
+  outline-offset: -3px;
+}
+
+.stageLabelInput {
+  height: 28px;
+  width: 100%;
+  max-width: 220px;
+  border-radius: 8px;
+  border: 1px solid rgba(175, 210, 255, 0.22);
+  background: rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  font-weight: 650;
+  padding: 0 8px;
+}
+
+.columnHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.stageTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.stageRenameIconButton {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.12);
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 28px;
+}
+
+.stageRenameIconButton:hover,
+.stageRenameIconButton:focus-visible {
+  border-color: rgba(90, 220, 140, 0.55);
+  outline: none;
+}
+
+.columnTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: 0.3px;
+  color: rgba(236, 170, 78, 0.92);
+}
+
+/* Top half: scrollable cards area */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-right: 10px;
+  position: relative;
+  /* Limit top half to roughly half the column height */
+  max-height: 50%;
+}
+
+.cards::-webkit-scrollbar { width: 10px; }
+.cards::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.10); border-radius: 10px; }
+.cards::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 10px; border: 2px solid rgba(0, 0, 0, 0.10); }
+.cards::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.28); }
+.cards { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.22) rgba(0, 0, 0, 0.10); }
+
+/* Bottom panel fixed header (the non-renameable label shown above FocusPanel) */
+.bottomPanelLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(120, 170, 255, 0.6);
+  padding: 6px 2px 2px 2px;
+  user-select: none;
+  flex: 0 0 auto;
+}
+
+.empty {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  padding: 10px 8px;
+}
+
+.card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 9px;
+  cursor: pointer;
+  position: relative;
+}
+
+.cardActiveTask { border-color: rgba(90, 220, 140, 0.55); }
+.cardDragging { opacity: 0.85; }
+
+.cardDragging::after,
+.card:focus-within::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(120, 170, 255, 0.85);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.cardDropBefore::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 0;
+  height: 0;
+  border-top: 2px solid rgba(120, 170, 255, 0.9);
+  pointer-events: none;
+}
+
+.cardDropAfter::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 0;
+  height: 0;
+  border-bottom: 2px solid rgba(120, 170, 255, 0.9);
+  pointer-events: none;
+}
+
+.cardTitleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardTitleLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cardControlsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardControlsLeft {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cardControlsRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.cardTitleButton {
+  padding: 0;
+  margin: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  text-align: left;
+  border-radius: 8px;
+}
+
+.cardTitleButton:hover,
+.cardTitleButton:focus-visible {
+  border-color: rgba(90, 220, 140, 0.45);
+  background: rgba(255, 255, 255, 0.05);
+  outline: none;
+}
+
+.cardTitleIcon {
+  flex: 0 0 auto;
+  color: rgba(255, 255, 255, 0.62);
+  transform: translateY(1px);
+}
+
+.cardTitleInput {
+  width: 100%;
+  min-width: 0;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(175, 210, 255, 0.22);
+  background: rgba(0, 0, 0, 0.22);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+}
+
+.cardTitleSaving {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  flex: 0 0 auto;
+}
+
+.dragHandle {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: rgba(255, 255, 255, 0.70);
+  flex: 0 0 auto;
+}
+
+.dragHandle:active { cursor: grabbing; }
+.dragHandle:hover { background: rgba(255, 255, 255, 0.06); }
+
+.gripIcon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.card:focus-within { outline: none; }
+
+.cardTop {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardOutcomeInline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardOutcomeList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardOutcomeItem { position: relative; }
+
+.cardOutcomeRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.cardOutcomeDeleteButton {
+  flex: 0 0 auto;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 110, 110, 0.28);
+  background: rgba(255, 110, 110, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.cardOutcomeDeleteButton:hover { border-color: rgba(255, 92, 92, 0.75); }
+.cardOutcomeDeleteButton:disabled { cursor: not-allowed; opacity: 0.65; }
+
+.cardOutcomeItem + .cardOutcomeItem::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 12px;
+  right: 12px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 1px;
+}
+
+.cardOutcomeRowButton {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.88);
+  text-align: left;
+}
+
+.cardOutcomeRowButton:hover { border-color: rgba(90, 220, 140, 0.55); }
+
+.cardOutcomeRowIcon {
+  flex: 0 0 auto;
+  color: rgba(255, 255, 255, 0.65);
+  transform: translateY(1px);
+}
+
+.cardOutcomeRowText {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.cardOutcomeRowAddText {
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 600;
+}
+
+.cardOutcomeAdd {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.cardOutcomeAddRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cardOutcomeAdd:hover { text-decoration: underline; }
+
+.cardOutcomeTextarea {
+  width: 100%;
+  resize: none;
+  min-height: 38px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.cardOutcomeSaving {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+}
+
+.cardTitle {
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 560;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.statusDot {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.statusNotStarted { background: rgba(180, 180, 180, 0.65); }
+.statusInProgress { background: rgba(255, 193, 77, 0.9); }
+.statusBlocked { background: rgba(255, 92, 92, 0.9); }
+.statusComplete { background: rgba(90, 220, 140, 0.9); }
+
+.statusLabel { display: flex; }
+
+.statusSelect {
+  width: max-content;
+  max-width: 130px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 12px;
+  padding: 0 8px;
+}
+
+.dangerIconButton {
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 110, 110, 0.35);
+  background: rgba(255, 110, 110, 0.10);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.dangerIconButton:hover { border-color: rgba(255, 92, 92, 0.75); }
+.dangerIconButton:disabled { cursor: not-allowed; opacity: 0.65; }
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@media (max-height: 800px) {
+  .root { padding: 8px; gap: 8px; }
+  .column { padding: 7px; }
+}

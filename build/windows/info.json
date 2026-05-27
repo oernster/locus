@@ -1,0 +1,16 @@
+{
+  "fixed": {
+    "file_version": "1.0.0.0"
+  },
+  "info": {
+    "0000": {
+      "ProductVersion": "1.0.0",
+      "CompanyName": "Oliver Ernster",
+      "FileDescription": "Locus - Task Board with Focus Insights",
+      "InternalName": "locus",
+      "LegalCopyright": "Copyright 2025 Oliver Ernster",
+      "OriginalFilename": "locus.exe",
+      "ProductName": "Locus"
+    }
+  }
+}
