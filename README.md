@@ -24,24 +24,24 @@ Locus answers these without any manual input. It tracks OS-level foreground focu
 ## UI Layout
 
 ```
-╔═════════════════════════════════════════════════════╗
-║  🏷  Board Name              ▶ Start    ＋ Add      ║
-╠═════════════════════════════════════════════════════╣
-║  FOCUS HISTORY  ▲                                   ║
-║  ┌──────────┬───────────┬───────────┬────────────┐  ║
-║  │  Today   │ Yesterday │ This Week │ This Month │  ║
-║  └──────────┴───────────┴───────────┴────────────┘  ║
-║  ████████████████████░░░░  VS Code        2h 14m    ║
-║  ████████░░░░░░░░░░░░░░░░  Terminal         58m     ║
-║  ███░░░░░░░░░░░░░░░░░░░░░  Chrome           21m     ║
-╠═════════════════════════════════════════════════════╣
-║  Reset board                        Snapshots ▼     ║
-║  Tip: drag the grip to reorder or move between stages║
-╠══════════╦══════════╦══════════╦═══════════════════╣
-║  PLAN    ║ EXECUTE  ║  CHECK   ║  DONE             ║
-║  · Task  ║  · Task  ║  · Task  ║  · Task           ║
-║  · Task  ║  · Task  ║          ║                   ║
-╚══════════╩══════════╩══════════╩═══════════════════╝
+╔═══════════════════════════════════════════════════════╗
+║  🏷  Board Name              ▶ Start    ＋ Add        ║
+╠═══════════════════════════════════════════════════════╣
+║  FOCUS HISTORY  ▲                                     ║
+║  ┌──────────┬───────────┬───────────┬────────────┐    ║
+║  │  Today   │ Yesterday │ This Week │ This Month │    ║
+║  └──────────┴───────────┴───────────┴────────────┘    ║
+║  ████████████████████░░░░  VS Code        2h 14m      ║
+║  ████████░░░░░░░░░░░░░░░░  Terminal         58m       ║
+║  ███░░░░░░░░░░░░░░░░░░░░░  Chrome           21m       ║
+╠═══════════════════════════════════════════════════════╣
+║  Reset board                        Snapshots ▼       ║
+║  Tip: drag the grip to reorder or move between stages  ║
+╠══════════╦══════════╦══════════╦══════════════════════╣
+║  PLAN    ║ EXECUTE  ║  CHECK   ║  DONE                ║
+║  · Task  ║  · Task  ║  · Task  ║  · Task              ║
+║  · Task  ║  · Task  ║          ║                      ║
+╚══════════╩══════════╩══════════╩══════════════════════╝
 ```
 
 **Focus History** is collapsed by default. Click the header to expand it, then pick a time period. It shows up to 10 apps ranked by total focus time, with a scrollable list if more than 5 are visible. Today's view refreshes every 2 seconds.
