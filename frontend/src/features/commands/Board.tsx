@@ -173,7 +173,7 @@ export function Board() {
       setBoardNameDraft(b.name);
 
       const items = await ListCommands("");
-      setCommands(items ?? []);
+      setCommands((items ?? []) as unknown as CommandDTO[]);
 
       // Fetch outcomes for all commands.
       const byId: Record<number, OutcomeDTO[]> = {};
@@ -184,10 +184,10 @@ export function Board() {
       setOutcomesByCommandId(byId);
 
       const s = await GetActiveSession();
-      setActiveSession(s ?? { active: false });
+      setActiveSession((s ?? { active: false }) as unknown as SessionDTO);
 
       const latest = await GetLatestSessionsByStageId();
-      setLatestByStageId(latest ?? {});
+      setLatestByStageId((latest ?? {}) as unknown as LatestByStageId);
 
       const snaps = await ListSnapshots();
       setSnapshots(snaps ?? []);

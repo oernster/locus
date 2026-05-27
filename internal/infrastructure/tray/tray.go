@@ -3,6 +3,9 @@
 package tray
 
 import (
+	"bytes"
+	"image"
+	_ "image/png"
 	"log"
 	"runtime"
 
@@ -22,7 +25,8 @@ type QuitFunc func()
 // onShow is called when the user clicks Open.
 // onQuit is called when the user clicks Exit.
 // ready is closed once the tray is set up so the caller can proceed.
-func Run(onShow ShowWindowFunc, onQuit QuitFunc, ready chan<- struct{}) {
+// iconPNG is the raw PNG bytes of the tray icon (embedded from main).
+func Run(onShow ShowWindowFunc, onQuit QuitFunc, ready chan<- struct{}, iconPNG []byte) {
 	// This goroutine must be pinned to its OS thread for walk to work correctly.
 	runtime.LockOSThread()
 
@@ -41,20 +45,26 @@ func Run(onShow ShowWindowFunc, onQuit QuitFunc, ready chan<- struct{}) {
 	}
 	defer ni.Dispose()
 
-	// Size the tray icon to match the system notification area.
-	dpi := int(win.GetDpiForWindow(mw.Handle()))
-	if dpi == 0 {
-		dpi = 96
-	}
-	const baseIconSize = 16
-	sz := baseIconSize * dpi / 96
-	iconSize := walk.Size{Width: sz, Height: sz}
-	ico, iconErr := walk.NewIconFromResourceIdWithSize(2, iconSize)
-	if iconErr != nil {
-		ico, _ = walk.NewIconFromResourceIdWithSize(1, iconSize)
-	}
-	if ico != nil {
-		_ = ni.SetIcon(ico)
+	// Load tray icon from embedded PNG bytes.
+	if len(iconPNG) > 0 {
+		img, _, decErr := image.Decode(bytes.NewReader(iconPNG))
+		if decErr == nil {
+			dpi := int(win.GetDpiForWindow(mw.Handle()))
+			if dpi == 0 {
+				dpi = 96
+			}
+			ico, icoErr := walk.NewIconFromImageForDPI(img, dpi)
+			if icoErr != nil {
+				ico, icoErr = walk.NewIconFromImage(img)
+			}
+			if icoErr == nil {
+				_ = ni.SetIcon(ico)
+			} else {
+				log.Printf("tray: set icon: %v", icoErr)
+			}
+		} else {
+			log.Printf("tray: decode icon PNG: %v", decErr)
+		}
 	}
 
 	if err := ni.SetToolTip("Locus: task board + focus insights"); err != nil {

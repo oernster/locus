@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"log"
 	"os"
@@ -19,6 +20,9 @@ import (
 
 //go:embed all:frontend/dist
 var assets embed.FS
+
+//go:embed locus.png
+var appIconPNG []byte
 
 func main() {
 	// Resolve DB path: %APPDATA%\locus\locus.db
@@ -75,6 +79,7 @@ func main() {
 			}
 		},
 		ready,
+		appIconPNG,
 	)
 	// Wait for tray to initialise before Wails takes over the main goroutine.
 	<-ready
@@ -89,6 +94,9 @@ func main() {
 		},
 		BackgroundColour: &options.RGBA{R: 15, G: 17, B: 21, A: 255},
 		OnStartup:        app.startup,
+		OnDomReady: func(ctx context.Context) {
+			setTaskbarIcon()
+		},
 		Bind: []interface{}{
 			app,
 		},
