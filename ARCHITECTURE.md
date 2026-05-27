@@ -3,28 +3,31 @@
 ## Overview
 
 Locus is a Windows native application that combines task board management
-(inspired by CommandDeck) with OS-level focus tracking (via focus-reader
-integration). It uses Wails v2 to host a React 19 frontend inside a WebView2
-window, with a system tray icon managed by lxn/walk.
+with OS-level focus tracking built directly into the process. It uses Wails v2
+to host a React 19 frontend inside a WebView2 window, with a system tray icon
+managed by lxn/walk.
 
 ## Layer Structure
 
 ```
 Domain
-  entity/        Pure Go structs and constants. No external dependencies.
+  entity/          Pure Go structs and constants. No external dependencies.
 Application
-  dto/           Data transfer objects for the Wails IPC boundary.
-  service/       Business logic. Depends on Domain only.
+  dto/             Data transfer objects for the Wails IPC boundary.
+  service/         Business logic. Depends on Domain only.
 Infrastructure
-  persistence/   SQLite repositories (modernc.org/sqlite, pure Go).
-  focusreader/   Read-only access to focus-reader sessions.db.
-  wininfo/       PE version-info lookup via Win32 API.
-  startup/       Windows Run key registration.
-  tray/          lxn/walk system tray (background goroutine).
+  persistence/     SQLite repositories (modernc.org/sqlite, pure Go).
+                   Owns the focus_sessions table alongside tasks/sessions.
+  focustracker/    Built-in foreground-window poller (Windows only).
+                   Writes to focus_sessions in locus.db every 500ms.
+  focusreader/     Reads and aggregates focus_sessions from locus.db.
+  wininfo/         PE version-info lookup via Win32 API.
+  startup/         Windows Run key registration.
+  tray/            lxn/walk system tray (background goroutine).
 UI
-  app.go         Wails App struct: all bound methods.
-  main.go        Entry point: DB init, dependency wiring, tray + Wails launch.
-  frontend/      React 19 + TypeScript (Vite, CSS Modules).
+  app.go           Wails App struct: all bound methods.
+  main.go          Entry point: DB init, dependency wiring, tray + Wails launch.
+  frontend/        React 19 + TypeScript (Vite, CSS Modules).
 ```
 
 ## Dependency Rules
@@ -49,6 +52,10 @@ main()
   |
   |-- <-ready  (wait for tray to be set up)
   |
+  |-- Start focus tracker goroutine
+  |     Polls GetForegroundWindow every 500ms
+  |     Writes to focus_sessions table in locus.db
+  |
   `-- wails.Run() (blocks on main goroutine)
 ```
 
@@ -57,15 +64,55 @@ When the user clicks "Exit": `runtime.Quit(ctx)`.
 
 ## Data Storage
 
-- Locus DB: `%APPDATA%\locus\locus.db` (read-write, owned by Locus).
-- Focus-reader DB: `%APPDATA%\focus-reader\sessions.db` (read-only, owned by focus-reader).
+All data is stored in a single SQLite database:
 
-## Focus Integration
+```
+%APPDATA%\locus\locus.db
+```
 
-FocusService correlates locus session time windows with focus-reader sessions.
-For each completed locus session in a stage, it queries focus-reader for
-overlapping application usage, aggregates per-executable time, subtracts idle
-gaps exceeding 5 minutes, and returns the result as FocusDataDTO.
+Tables:
+
+| Table | Owner | Purpose |
+|---|---|---|
+| commands | Locus | Task definitions |
+| sessions | Locus | Work session time ranges per task/stage |
+| outcomes | Locus | Notes attached to tasks |
+| board_state | Locus | Board name and stage label overrides |
+| snapshots | Locus | Serialised board snapshots (JSON) |
+| focus_sessions | FocusTracker | Foreground app exe path + start/end Unix seconds |
+
+There is no external database dependency. All read and write operations use the same `*sql.DB` instance opened in `main()`.
+
+## Focus Tracking
+
+### Tracker (Infrastructure/focustracker)
+
+`tracker_windows.go` runs a background goroutine that:
+
+1. Calls `GetForegroundWindow()` every 500ms.
+2. Resolves the window's process exe path via `OpenProcess` + `QueryFullProcessImageNameW`.
+3. On foreground change: closes the previous `focus_sessions` row (`ended_at = now`), inserts a new row for the new exe.
+4. On startup: closes any stale rows with `ended_at IS NULL` left by a prior crash.
+
+### Reader (Infrastructure/focusreader)
+
+`SQLiteFocusReader` queries `focus_sessions` and aggregates per-exe duration over supplied time windows. It:
+
+- Clamps sessions to the requested window boundaries.
+- Filters out `C:\Windows\` system processes.
+- Detects idle gaps exceeding 5 minutes and subtracts them from deep work time.
+- Returns up to 10 apps ranked by total seconds.
+
+### Service (Application/service)
+
+`FocusService` exposes two query paths:
+
+- `GetFocusDataForStage(stageId)`: correlates focus data with locus session time windows for a stage. Falls back to a 2-hour rolling window if no sessions exist yet.
+- `GetFocusDataForTimeRange(startUnix, endUnix)`: returns aggregated focus data for an arbitrary time range with no stage correlation. Used by the Focus History UI.
+
+### Frontend (FocusHistory)
+
+The collapsible Focus History panel sits above the board columns. The frontend computes calendar boundaries (Today / Yesterday / This Week / This Month) in local time and passes Unix second timestamps to `GetFocusDataForTimeRange`. Today's view polls every 2 seconds for live updates.
 
 ## Snapshot Schema
 
