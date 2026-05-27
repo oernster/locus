@@ -130,10 +130,6 @@ func (s *SnapshotService) Load(ctx context.Context, id int64) error {
 				data.Commands[i].StageId = entity.StageId(alias)
 			}
 		}
-		for i, o := range data.Outcomes {
-			_ = o
-			_ = i
-		}
 		if data.Board.StageLabels != nil {
 			migrated := make(map[string]string, len(data.Board.StageLabels))
 			for k, v := range data.Board.StageLabels {

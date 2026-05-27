@@ -56,10 +56,6 @@ func (s *FocusService) GetFocusDataForStage(ctx context.Context, stageId string)
 		return dto.FocusDataDTO{Available: false, StageId: stageId}, nil
 	}
 
-	if len(windows) == 0 {
-		return dto.FocusDataDTO{Available: true, StageId: stageId, Apps: []dto.AppFocusDTO{}}, nil
-	}
-
 	result := s.reader.GetFocusDataForSessions(windows)
 	result.StageId = stageId
 

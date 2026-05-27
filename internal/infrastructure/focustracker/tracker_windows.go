@@ -33,13 +33,14 @@ var (
 
 // Tracker polls the foreground window and records focus sessions in locus.db.
 type Tracker struct {
-	db   *sql.DB
-	stop chan struct{}
+	db              *sql.DB
+	stop            chan struct{}
+	foregroundExeFn func() string
 }
 
 // New creates a Tracker backed by the supplied locus DB.
 func New(db *sql.DB) *Tracker {
-	return &Tracker{db: db, stop: make(chan struct{})}
+	return &Tracker{db: db, stop: make(chan struct{}), foregroundExeFn: foregroundExe}
 }
 
 // Start closes any stale open sessions from a prior crash, then launches
@@ -78,7 +79,7 @@ func (t *Tracker) run() {
 			}
 			return
 		case <-ticker.C:
-			exe := foregroundExe()
+			exe := t.foregroundExeFn()
 			if exe == "" || exe == currentExe {
 				continue
 			}
@@ -99,7 +100,11 @@ func (t *Tracker) startSession(exePath string) int64 {
 		log.Printf("focus tracker: insert: %v", err)
 		return 0
 	}
-	id, _ := res.LastInsertId()
+	id, err := res.LastInsertId()
+	if err != nil {
+		log.Printf("focus tracker: last insert id: %v", err)
+		return 0
+	}
 	return id
 }
 

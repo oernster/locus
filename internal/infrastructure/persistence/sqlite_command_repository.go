@@ -115,7 +115,7 @@ func scanCommand(row rowScanner) (entity.Command, error) {
 	)
 	if err := row.Scan(&id, &title, &status, &stageId, &sortIndex, &createdAt); err != nil {
 		if err == sql.ErrNoRows {
-			return entity.Command{}, fmt.Errorf("command not found")
+			return entity.Command{}, fmt.Errorf("command not found: %w", err)
 		}
 		return entity.Command{}, err
 	}

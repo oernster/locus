@@ -24,12 +24,13 @@ const (
 
 // SQLiteFocusReader reads the focus_sessions table in locus.db.
 type SQLiteFocusReader struct {
-	db *sql.DB
+	db        *sql.DB
+	appInfoFn func(exePath string) wininfo.AppInfo
 }
 
 // NewSQLiteFocusReader creates a reader backed by the supplied locus DB.
 func NewSQLiteFocusReader(db *sql.DB) *SQLiteFocusReader {
-	return &SQLiteFocusReader{db: db}
+	return &SQLiteFocusReader{db: db, appInfoFn: wininfo.GetAppInfo}
 }
 
 // GetFocusDataForSessions implements service.FocusReader.
@@ -82,6 +83,9 @@ func (r *SQLiteFocusReader) GetFocusDataForSessions(sessions []service.FocusSess
 				ended = win.EndedAt
 			}
 			fSessions = append(fSessions, fSession{exePath, started, ended})
+		}
+		if err := rows.Err(); err != nil {
+			log.Printf("focus reader: rows error: %v", err)
 		}
 		rows.Close()
 
@@ -140,7 +144,7 @@ func (r *SQLiteFocusReader) GetFocusDataForSessions(sessions []service.FocusSess
 
 	apps := make([]dto.AppFocusDTO, 0, len(appList))
 	for _, a := range appList {
-		info := wininfo.GetAppInfo(a.exePath)
+		info := r.appInfoFn(a.exePath)
 		apps = append(apps, dto.AppFocusDTO{
 			ExePath:      a.exePath,
 			FriendlyName: info.FriendlyName,
