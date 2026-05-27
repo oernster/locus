@@ -1,4 +1,4 @@
-# <img width="48" height="48" alt="Locus" src="locus.png" /> Locus
+# <img width="128" height="128" alt="appicon" src="https://github.com/user-attachments/assets/928c482c-7509-455b-b674-6cae4f9b337f" /> Locus
 
 Locus is a native Windows productivity tool that merges two concerns into one surface:
 
