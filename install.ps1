@@ -63,7 +63,7 @@ Write-Ok "Prerequisites satisfied."
 Write-Step "Installing frontend dependencies..."
 Push-Location (Join-Path $PSScriptRoot 'frontend')
 try {
-    & npm install --silent 2>&1 | ForEach-Object { Write-Host "    $_" }
+    & npm install --silent
     if ($LASTEXITCODE -ne 0) { Write-Fail "npm install failed (exit $LASTEXITCODE)" }
 } finally {
     Pop-Location
@@ -74,7 +74,7 @@ Write-Ok "Frontend dependencies ready."
 Write-Step "Building $AppName.exe (this may take a moment)..."
 Push-Location $PSScriptRoot
 try {
-    & wails build 2>&1 | ForEach-Object { Write-Host "    $_" }
+    & wails build
     if ($LASTEXITCODE -ne 0) { Write-Fail "wails build failed (exit $LASTEXITCODE)" }
 } finally {
     Pop-Location

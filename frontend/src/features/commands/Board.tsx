@@ -28,12 +28,11 @@ import {
   DeleteOutcome,
 } from "../../../wailsjs/go/main/App";
 
-import { DEFAULT_STAGE_LABELS, STAGES, STATUSES, BOTTOM_PANEL_LABELS } from "./constants";
+import { DEFAULT_STAGE_LABELS, STAGES, STATUSES } from "./constants";
 import { CreateCommandModal } from "./CreateCommandModal";
 import { CommandDrawer } from "./CommandDrawer";
 import { DestructiveGuardModal } from "../../components/DestructiveGuardModal";
 import { ConfirmDangerModal } from "../../components/ConfirmDangerModal";
-import { FocusPanel } from "../focus/FocusPanel";
 import { FocusHistory } from "../focus/FocusHistory";
 
 import styles from "./Board.module.css";
@@ -111,7 +110,6 @@ export function Board() {
   const [outcomeToDelete, setOutcomeToDelete] = useState<{ commandId: number; outcome: OutcomeDTO } | null>(null);
 
   const [drawerOutcomesNonce, setDrawerOutcomesNonce] = useState(0);
-  const [focusNonce, setFocusNonce] = useState(0);
 
   const [outcomeDraftByCommandId, setOutcomeDraftByCommandId] = useState<Record<number, string>>({});
   const [outcomeEditBaseByCommandId, setOutcomeEditBaseByCommandId] = useState<Record<number, string>>({});
@@ -198,7 +196,6 @@ export function Board() {
       setError(msg);
     } finally {
       setLoading(false);
-      setFocusNonce((n) => n + 1);
     }
   }
 
@@ -882,7 +879,61 @@ export function Board() {
           </div>
         </div>
 
-        <div className={styles.structuralRow}>
+
+      </div>
+
+      {destructiveModalOpen && pendingAction ? (
+        <DestructiveGuardModal
+          title={pendingAction.type === "reset" ? "Reset board?" : "Load snapshot?"}
+          body={pendingAction.type === "reset"
+            ? "Your current board has content. Do you want to save a snapshot before clearing it?"
+            : "Loading this snapshot will replace your current board. Do you want to save a snapshot first?"}
+          busy={destructiveBusy}
+          onSaveAndContinue={() => void onModalSaveAndContinue()}
+          onContinueWithoutSaving={() => void onModalContinueWithoutSaving()}
+          onCancel={closeDestructiveModal}
+        />
+      ) : null}
+
+      {deleteSnapshotModalOpen && snapshotToDelete ? (
+        <ConfirmDangerModal
+          title="Delete snapshot?"
+          body={`Are you sure you want to delete "${snapshotToDelete.name}"? This cannot be undone.`}
+          busy={deleteSnapshotBusy}
+          confirmLabel="Yes"
+          cancelLabel="No"
+          onConfirm={() => void confirmDeleteSnapshot()}
+          onCancel={closeDeleteSnapshotModal}
+        />
+      ) : null}
+
+      {deleteCommandModalOpen && commandToDelete ? (
+        <ConfirmDangerModal
+          title="Delete task?"
+          body={`Delete "${commandToDelete.title}"? This will permanently remove the task and its outcomes/sessions. This cannot be undone.`}
+          busy={deleteCommandBusy}
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          onConfirm={() => void confirmDeleteCommand()}
+          onCancel={closeDeleteCommandModal}
+        />
+      ) : null}
+
+      {deleteOutcomeModalOpen && outcomeToDelete ? (
+        <ConfirmDangerModal
+          title="Delete outcome?"
+          body={`Delete this outcome? "${outcomeToDelete.outcome.note}" This cannot be undone.`}
+          busy={!!savingOutcomeByCommandId[outcomeToDelete.commandId]}
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          onConfirm={() => void confirmDeleteInlineOutcome()}
+          onCancel={closeDeleteOutcomeModal}
+        />
+      ) : null}
+
+      <FocusHistory />
+
+      <div className={styles.structuralRow}>
           <button
             type="button"
             className={styles.structuralLeftButton}
@@ -972,63 +1023,13 @@ export function Board() {
           </div>
         </div>
 
-        <div className={styles.helperRow}>
-          {startMode ? (
-            <span className={styles.helperText}>Select a task card to start a session. Press Esc to cancel.</span>
-          ) : (
-            <span className={styles.helperText}>Tip: drag the grip on a card to reorder or move it between stages.</span>
-          )}
-        </div>
+      <div className={styles.helperRow}>
+        {startMode ? (
+          <span className={styles.helperText}>Select a task card to start a session. Press Esc to cancel.</span>
+        ) : (
+          <span className={styles.helperText}>Tip: drag the grip on a card to reorder or move it between stages.</span>
+        )}
       </div>
-
-      {destructiveModalOpen && pendingAction ? (
-        <DestructiveGuardModal
-          title={pendingAction.type === "reset" ? "Reset board?" : "Load snapshot?"}
-          body={pendingAction.type === "reset"
-            ? "Your current board has content. Do you want to save a snapshot before clearing it?"
-            : "Loading this snapshot will replace your current board. Do you want to save a snapshot first?"}
-          busy={destructiveBusy}
-          onSaveAndContinue={() => void onModalSaveAndContinue()}
-          onContinueWithoutSaving={() => void onModalContinueWithoutSaving()}
-          onCancel={closeDestructiveModal}
-        />
-      ) : null}
-
-      {deleteSnapshotModalOpen && snapshotToDelete ? (
-        <ConfirmDangerModal
-          title="Delete snapshot?"
-          body={`Are you sure you want to delete "${snapshotToDelete.name}"? This cannot be undone.`}
-          busy={deleteSnapshotBusy}
-          confirmLabel="Yes"
-          cancelLabel="No"
-          onConfirm={() => void confirmDeleteSnapshot()}
-          onCancel={closeDeleteSnapshotModal}
-        />
-      ) : null}
-
-      {deleteCommandModalOpen && commandToDelete ? (
-        <ConfirmDangerModal
-          title="Delete task?"
-          body={`Delete "${commandToDelete.title}"? This will permanently remove the task and its outcomes/sessions. This cannot be undone.`}
-          busy={deleteCommandBusy}
-          confirmLabel="Delete"
-          cancelLabel="Cancel"
-          onConfirm={() => void confirmDeleteCommand()}
-          onCancel={closeDeleteCommandModal}
-        />
-      ) : null}
-
-      {deleteOutcomeModalOpen && outcomeToDelete ? (
-        <ConfirmDangerModal
-          title="Delete outcome?"
-          body={`Delete this outcome? "${outcomeToDelete.outcome.note}" This cannot be undone.`}
-          busy={!!savingOutcomeByCommandId[outcomeToDelete.commandId]}
-          confirmLabel="Delete"
-          cancelLabel="Cancel"
-          onConfirm={() => void confirmDeleteInlineOutcome()}
-          onCancel={closeDeleteOutcomeModal}
-        />
-      ) : null}
 
       <div className={`${styles.board} ${activeStageId ? styles.boardHasActive : ""} ${startMode ? styles.boardStartMode : ""}`}>
         {STAGES.map((stage_id) => (
@@ -1271,14 +1272,9 @@ export function Board() {
               ))}
             </div>
 
-            {/* Bottom half: FocusPanel with fixed label */}
-            <div className={styles.bottomPanelLabel}>{BOTTOM_PANEL_LABELS[stage_id]}</div>
-            <FocusPanel stageId={stage_id} refreshNonce={focusNonce} />
           </div>
         ))}
       </div>
-
-      <FocusHistory />
 
       {createFor ? (
         <CreateCommandModal

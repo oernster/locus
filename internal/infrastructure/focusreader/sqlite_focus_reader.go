@@ -17,7 +17,7 @@ const (
 	// time (5 minutes).
 	idleThresholdSeconds = int64(300)
 	// maxAppsInReport is the maximum number of apps returned per stage.
-	maxAppsInReport = 8
+	maxAppsInReport = 10
 	// windowsSystemPathPrefix is filtered out of app results.
 	windowsSystemPathPrefix = `C:\Windows\`
 )
