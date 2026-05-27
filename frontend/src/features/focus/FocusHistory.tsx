@@ -56,7 +56,7 @@ function formatDuration(seconds: number): string {
 }
 
 export function FocusHistory() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [period, setPeriod] = useState<Period>("today");
   const [data, setData] = useState<FocusDataDTO | null>(null);
   const [loading, setLoading] = useState(true);

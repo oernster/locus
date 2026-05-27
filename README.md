@@ -44,7 +44,7 @@ Locus answers these without any manual input. It tracks OS-level foreground focu
 ╚══════════╩══════════╩══════════╩═══════════════════════╝
 ```
 
-**Focus History** is collapsed by default. Click the header to expand it, then pick a time period. It shows up to 10 apps ranked by total focus time, with a scrollable list if more than 5 are visible. Today's view refreshes every 2 seconds.
+**Focus History** is expanded by default. Click the header to collapse it, then pick a time period. It shows up to 10 apps ranked by total focus time, with a scrollable list if more than 5 are visible. Today's view refreshes every 2 seconds.
 
 ---
 
