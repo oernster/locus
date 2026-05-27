@@ -56,7 +56,13 @@ func (s *FocusService) GetFocusDataForStage(ctx context.Context, stageId string)
 	return result, nil
 }
 
-// gatherWindows collects completed locus session windows for a stage.
+// rollingWindowHours is how far back to look for focus data when no locus
+// sessions exist for a stage.
+const rollingWindowHours = 2
+
+// gatherWindows collects locus session windows for a stage. If no sessions
+// exist for the stage it returns a single rolling window covering the last
+// rollingWindowHours hours so real-time focus data is visible immediately.
 func gatherWindows(ctx context.Context, repo repository.SessionRepository, sid entity.StageId) ([]FocusSessionWindow, error) {
 	// Pull all sessions from the beginning of time.
 	allSessions, err := repo.ListByTimeRange(ctx, time.Unix(0, 0).UTC(), time.Now().UTC())
@@ -64,19 +70,32 @@ func gatherWindows(ctx context.Context, repo repository.SessionRepository, sid e
 		return nil, err
 	}
 
+	now := time.Now()
 	var windows []FocusSessionWindow
 	for _, sess := range allSessions {
 		if sess.StageId != sid {
 			continue
 		}
-		if sess.EndedAt == nil {
-			continue
+		endedAt := now.Unix()
+		if sess.EndedAt != nil {
+			endedAt = sess.EndedAt.Unix()
 		}
 		windows = append(windows, FocusSessionWindow{
 			StageId:   sess.StageId,
 			StartedAt: sess.StartedAt.Unix(),
-			EndedAt:   sess.EndedAt.Unix(),
+			EndedAt:   endedAt,
 		})
 	}
+
+	// Fallback: no sessions yet for this stage -- show a rolling recent window
+	// so the focus tracker output is visible immediately.
+	if len(windows) == 0 {
+		windows = []FocusSessionWindow{{
+			StageId:   sid,
+			StartedAt: now.Add(-rollingWindowHours * time.Hour).Unix(),
+			EndedAt:   now.Unix(),
+		}}
+	}
+
 	return windows, nil
 }

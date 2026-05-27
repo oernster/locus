@@ -14,6 +14,7 @@ import (
 
 	"github.com/oernster/locus/internal/application/service"
 	"github.com/oernster/locus/internal/infrastructure/focusreader"
+	"github.com/oernster/locus/internal/infrastructure/focustracker"
 	"github.com/oernster/locus/internal/infrastructure/persistence"
 	"github.com/oernster/locus/internal/infrastructure/tray"
 )
@@ -57,9 +58,12 @@ func main() {
 	boardSvc := service.NewBoardService(boardRepo, commandRepo)
 	snapshotSvc := service.NewSnapshotService(snapshotRepo, commandRepo, outcomeRepo, boardRepo)
 
-	// Wire focus-reader integration.
-	focusReaderDBPath := filepath.Join(appData, "focus-reader", "sessions.db")
-	focusReader := focusreader.NewSQLiteFocusReader(focusReaderDBPath)
+	// Start built-in focus tracker (records foreground window to locus.db).
+	tracker := focustracker.New(db)
+	tracker.Start()
+
+	// Wire focus reader (reads focus_sessions from locus.db).
+	focusReader := focusreader.NewSQLiteFocusReader(db)
 	focusSvc := service.NewFocusService(sessionRepo, focusReader)
 
 	// Create the Wails App.
@@ -93,7 +97,12 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 15, G: 17, B: 21, A: 255},
-		OnStartup:        app.startup,
+		OnStartup: app.startup,
+		OnBeforeClose: func(ctx context.Context) bool {
+			// Hide to tray instead of quitting. Tray "Quit" calls runtime.Quit.
+			runtime.WindowHide(ctx)
+			return true // true = cancel the close
+		},
 		OnDomReady: func(ctx context.Context) {
 			setTaskbarIcon()
 		},

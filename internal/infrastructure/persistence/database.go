@@ -41,8 +41,15 @@ CREATE TABLE IF NOT EXISTS snapshots (
     hash     TEXT    NOT NULL,
     saved_at INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS focus_sessions (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    exe_path   TEXT    NOT NULL,
+    started_at INTEGER NOT NULL,
+    ended_at   INTEGER
+);
 CREATE INDEX IF NOT EXISTS idx_sessions_command ON sessions(command_id);
 CREATE INDEX IF NOT EXISTS idx_outcomes_command ON outcomes(command_id);
+CREATE INDEX IF NOT EXISTS idx_focus_sessions_time ON focus_sessions(started_at);
 PRAGMA foreign_keys = ON;
 `
 

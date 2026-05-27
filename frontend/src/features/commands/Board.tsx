@@ -110,6 +110,7 @@ export function Board() {
   const [outcomeToDelete, setOutcomeToDelete] = useState<{ commandId: number; outcome: OutcomeDTO } | null>(null);
 
   const [drawerOutcomesNonce, setDrawerOutcomesNonce] = useState(0);
+  const [focusNonce, setFocusNonce] = useState(0);
 
   const [outcomeDraftByCommandId, setOutcomeDraftByCommandId] = useState<Record<number, string>>({});
   const [outcomeEditBaseByCommandId, setOutcomeEditBaseByCommandId] = useState<Record<number, string>>({});
@@ -196,6 +197,7 @@ export function Board() {
       setError(msg);
     } finally {
       setLoading(false);
+      setFocusNonce((n) => n + 1);
     }
   }
 
@@ -1270,7 +1272,7 @@ export function Board() {
 
             {/* Bottom half: FocusPanel with fixed label */}
             <div className={styles.bottomPanelLabel}>{BOTTOM_PANEL_LABELS[stage_id]}</div>
-            <FocusPanel stageId={stage_id} />
+            <FocusPanel stageId={stage_id} refreshNonce={focusNonce} />
           </div>
         ))}
       </div>

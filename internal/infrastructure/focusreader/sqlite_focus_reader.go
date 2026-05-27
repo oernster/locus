@@ -5,34 +5,31 @@ import (
 	"log"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/oernster/locus/internal/application/dto"
 	"github.com/oernster/locus/internal/application/service"
 	"github.com/oernster/locus/internal/infrastructure/wininfo"
-
-	_ "modernc.org/sqlite"
 )
 
 const (
-	// idleThresholdSeconds is the gap between focus-reader sessions that counts
-	// as idle time (5 minutes).
+	// idleThresholdSeconds is the gap between focus sessions that counts as idle
+	// time (5 minutes).
 	idleThresholdSeconds = int64(300)
 	// maxAppsInReport is the maximum number of apps returned per stage.
 	maxAppsInReport = 8
-	// msPerSecond converts focus-reader millisecond timestamps to seconds.
-	msPerSecond = int64(1000)
 	// windowsSystemPathPrefix is filtered out of app results.
 	windowsSystemPathPrefix = `C:\Windows\`
 )
 
-// SQLiteFocusReader reads the focus-reader SQLite database read-only.
+// SQLiteFocusReader reads the focus_sessions table in locus.db.
 type SQLiteFocusReader struct {
-	dbPath string
+	db *sql.DB
 }
 
-// NewSQLiteFocusReader creates a reader for the given focus-reader DB path.
-func NewSQLiteFocusReader(dbPath string) *SQLiteFocusReader {
-	return &SQLiteFocusReader{dbPath: dbPath}
+// NewSQLiteFocusReader creates a reader backed by the supplied locus DB.
+func NewSQLiteFocusReader(db *sql.DB) *SQLiteFocusReader {
+	return &SQLiteFocusReader{db: db}
 }
 
 // GetFocusDataForSessions implements service.FocusReader.
@@ -41,95 +38,84 @@ func (r *SQLiteFocusReader) GetFocusDataForSessions(sessions []service.FocusSess
 		return dto.FocusDataDTO{Available: true, Apps: []dto.AppFocusDTO{}}
 	}
 
-	db, err := sql.Open("sqlite", "file:"+r.dbPath+"?mode=ro")
-	if err != nil {
-		log.Printf("focus-reader DB open error: %v", err)
-		return dto.FocusDataDTO{Available: false}
-	}
-	defer db.Close()
-
-	// Verify connectivity.
-	if err := db.Ping(); err != nil {
-		return dto.FocusDataDTO{Available: false}
-	}
-
 	type appKey = string
 	appSeconds := make(map[appKey]int64)
 	appSessions := make(map[appKey]int)
 	var totalSeconds, idleSeconds int64
 
+	now := time.Now().Unix()
+
 	for _, win := range sessions {
-		winStartMS := win.StartedAt * msPerSecond
-		winEndMS := win.EndedAt * msPerSecond
 		winDuration := win.EndedAt - win.StartedAt
 		totalSeconds += winDuration
 
-		// Query focus-reader sessions overlapping this locus session window.
-		rows, err := db.Query(
+		// Query focus_sessions overlapping this locus session window.
+		// Timestamps are Unix seconds.
+		rows, err := r.db.Query(
 			`SELECT exe_path, started_at, COALESCE(ended_at, ?) AS ended_at
-			 FROM sessions
+			 FROM focus_sessions
 			 WHERE started_at < ? AND (ended_at IS NULL OR ended_at > ?)
 			 ORDER BY started_at`,
-			winEndMS, winEndMS, winStartMS)
+			now, win.EndedAt, win.StartedAt)
 		if err != nil {
-			log.Printf("focus-reader query error: %v", err)
+			log.Printf("focus reader: query error: %v", err)
 			continue
 		}
 
-		type frSession struct {
-			exePath   string
-			startedMS int64
-			endedMS   int64
+		type fSession struct {
+			exePath string
+			started int64
+			ended   int64
 		}
-		var frSessions []frSession
+		var fSessions []fSession
 		for rows.Next() {
 			var exePath string
-			var startedMS, endedMS int64
-			if err := rows.Scan(&exePath, &startedMS, &endedMS); err != nil {
+			var started, ended int64
+			if err := rows.Scan(&exePath, &started, &ended); err != nil {
 				continue
 			}
 			// Clamp to locus session window.
-			if startedMS < winStartMS {
-				startedMS = winStartMS
+			if started < win.StartedAt {
+				started = win.StartedAt
 			}
-			if endedMS > winEndMS {
-				endedMS = winEndMS
+			if ended > win.EndedAt {
+				ended = win.EndedAt
 			}
-			frSessions = append(frSessions, frSession{exePath, startedMS, endedMS})
+			fSessions = append(fSessions, fSession{exePath, started, ended})
 		}
 		rows.Close()
 
 		// Sort by start time.
-		sort.Slice(frSessions, func(i, j int) bool {
-			return frSessions[i].startedMS < frSessions[j].startedMS
+		sort.Slice(fSessions, func(i, j int) bool {
+			return fSessions[i].started < fSessions[j].started
 		})
 
 		// Aggregate per-app durations and detect idle gaps.
-		prevEnd := winStartMS
-		for _, fs := range frSessions {
+		prevEnd := win.StartedAt
+		for _, fs := range fSessions {
 			// Idle gap before this session.
-			gapSec := (fs.startedMS - prevEnd) / msPerSecond
+			gapSec := fs.started - prevEnd
 			if gapSec > idleThresholdSeconds {
 				idleSeconds += gapSec
 			}
 
 			// Skip system processes.
 			if strings.HasPrefix(fs.exePath, windowsSystemPathPrefix) {
-				prevEnd = fs.endedMS
+				prevEnd = fs.ended
 				continue
 			}
 
-			durSec := (fs.endedMS - fs.startedMS) / msPerSecond
+			durSec := fs.ended - fs.started
 			if durSec < 0 {
 				durSec = 0
 			}
 			appSeconds[fs.exePath] += durSec
 			appSessions[fs.exePath]++
-			prevEnd = fs.endedMS
+			prevEnd = fs.ended
 		}
 
 		// Idle tail gap.
-		tailGap := (winEndMS - prevEnd) / msPerSecond
+		tailGap := win.EndedAt - prevEnd
 		if tailGap > idleThresholdSeconds {
 			idleSeconds += tailGap
 		}

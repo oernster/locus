@@ -6,6 +6,7 @@ import styles from "./FocusPanel.module.css";
 
 export type FocusPanelProps = {
   stageId: StageId;
+  refreshNonce?: number;
 };
 
 function formatDurationHM(seconds: number): string {
@@ -16,7 +17,10 @@ function formatDurationHM(seconds: number): string {
   return `${m}m`;
 }
 
-export function FocusPanel({ stageId }: FocusPanelProps) {
+// pollIntervalMs is how often the focus panel refreshes its data automatically.
+const pollIntervalMs = 2_000;
+
+export function FocusPanel({ stageId, refreshNonce }: FocusPanelProps) {
   const [data, setData] = useState<FocusDataDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,21 +28,25 @@ export function FocusPanel({ stageId }: FocusPanelProps) {
 
   useEffect(() => {
     let cancelled = false;
+
+    function fetchData(): void {
+      GetFocusData(stageId)
+        .then((result) => { if (!cancelled) setData(result); })
+        .catch(() => {
+          if (!cancelled) setData({ available: false, stage_id: stageId, total_seconds: 0, idle_seconds: 0, deep_work_seconds: 0, apps: [] });
+        })
+        .finally(() => { if (!cancelled) setLoading(false); });
+    }
+
     setLoading(true);
-    GetFocusData(stageId)
-      .then((result) => {
-        if (!cancelled) setData(result);
-      })
-      .catch(() => {
-        if (!cancelled) setData({ available: false, stage_id: stageId, total_seconds: 0, idle_seconds: 0, deep_work_seconds: 0, apps: [] });
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    fetchData();
+    const timer = window.setInterval(fetchData, pollIntervalMs);
+
     return () => {
       cancelled = true;
+      window.clearInterval(timer);
     };
-  }, [stageId]);
+  }, [stageId, refreshNonce]);
 
   const maxAppTime = data?.apps.reduce((m, a) => Math.max(m, a.total_seconds), 1) ?? 1;
 
@@ -49,7 +57,7 @@ export function FocusPanel({ stageId }: FocusPanelProps) {
       {loading ? (
         <div className={styles.hint}>Loading...</div>
       ) : !data || !data.available ? (
-        <div className={styles.hint}>Install focus-reader for attention insights</div>
+        <div className={styles.hint}>Focus tracking unavailable</div>
       ) : (
         <>
           {stageId === "EXECUTE" && data.deep_work_seconds > 0 ? (
