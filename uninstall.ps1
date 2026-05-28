@@ -5,8 +5,8 @@
 
 .DESCRIPTION
     Stops any running Locus process, removes the HKCU Run key that causes
-    it to launch at login, and deletes the install directory
-    (%LOCALAPPDATA%\locus\).
+    it to launch at login, deletes the install directory (%LOCALAPPDATA%\locus\),
+    and removes the Claude Code hook entries from ~/.claude/settings.json.
 
     By default the task database (%APPDATA%\locus\locus.db) is kept so your
     board, sessions, outcomes, and snapshots survive a reinstall.
@@ -18,12 +18,18 @@
     Also removes %APPDATA%\locus\ including the task database and all
     snapshots. All board history will be permanently lost.
 
+.PARAMETER KeepClaudeHooks
+    Skip removing the Claude Code hook entries from settings.json and
+    the skill file from ~/.claude/skills/locus/.
+
 .EXAMPLE
     .\uninstall.ps1
     .\uninstall.ps1 -PurgeData
+    .\uninstall.ps1 -KeepClaudeHooks
 #>
 param(
-    [switch]$PurgeData
+    [switch]$PurgeData,
+    [switch]$KeepClaudeHooks
 )
 
 Set-StrictMode -Version Latest
@@ -44,6 +50,65 @@ function Write-Ok([string]$msg) {
 
 function Write-Warn([string]$msg) {
     Write-Host "  WARN  $msg" -ForegroundColor Yellow
+}
+
+function Remove-ClaudeIntegration {
+    $claudeSettingsPath = Join-Path $env:USERPROFILE '.claude\settings.json'
+    $claudeSkillDir     = Join-Path $env:USERPROFILE '.claude\skills\locus'
+
+    # Remove skill directory
+    if (Test-Path $claudeSkillDir) {
+        Remove-Item -Recurse -Force $claudeSkillDir
+        Write-Ok "Claude skill removed from $claudeSkillDir"
+    } else {
+        Write-Ok "Claude skill directory not present (already clean)."
+    }
+
+    # Remove hooks from settings.json
+    if (-not (Test-Path $claudeSettingsPath)) {
+        Write-Ok "Claude Code settings.json not found; nothing to clean."
+        return
+    }
+
+    $raw      = Get-Content $claudeSettingsPath -Raw -Encoding UTF8
+    $settings = $raw | ConvertFrom-Json
+
+    if (-not $settings.PSObject.Properties['hooks']) {
+        Write-Ok "No hooks in settings.json; nothing to clean."
+        return
+    }
+
+    $changed    = $false
+    $eventNames = @('SessionStart', 'PreToolUse', 'PostToolUse', 'Stop')
+
+    foreach ($event in $eventNames) {
+        if (-not $settings.hooks.PSObject.Properties[$event]) { continue }
+
+        $filtered = @()
+        foreach ($group in $settings.hooks.$event) {
+            if (-not $group.PSObject.Properties['hooks']) {
+                $filtered += $group
+                continue
+            }
+            $keptHooks = @($group.hooks | Where-Object {
+                -not ($_.PSObject.Properties['command'] -and $_.command -match 'locus-')
+            })
+            if ($keptHooks.Count -gt 0) {
+                $group | Add-Member -MemberType NoteProperty -Name 'hooks' -Value $keptHooks -Force
+                $filtered += $group
+            }
+            if ($keptHooks.Count -ne $group.hooks.Count) { $changed = $true }
+        }
+
+        $settings.hooks | Add-Member -MemberType NoteProperty -Name $event -Value $filtered -Force
+    }
+
+    if ($changed) {
+        $settings | ConvertTo-Json -Depth 10 | Set-Content $claudeSettingsPath -Encoding UTF8
+        Write-Ok "Claude Code hooks removed from $claudeSettingsPath"
+    } else {
+        Write-Ok "No Locus hooks found in settings.json (already clean)."
+    }
 }
 
 Write-Host "`nUninstalling $AppName..." -ForegroundColor Yellow
@@ -80,7 +145,15 @@ if (Test-Path $InstallDir) {
     Write-Ok "Install directory not found (already clean)."
 }
 
-# 4. Optionally purge data
+# 4. Remove Claude CLI integration
+if (-not $KeepClaudeHooks) {
+    Write-Step "Removing Claude Code integration..."
+    Remove-ClaudeIntegration
+} else {
+    Write-Ok "Claude Code integration kept (-KeepClaudeHooks)."
+}
+
+# 5. Optionally purge data
 if ($PurgeData) {
     Write-Step "Removing data directory ($DataDir)..."
     if (Test-Path $DataDir) {

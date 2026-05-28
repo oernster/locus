@@ -102,7 +102,7 @@ avoid real Win32 API calls. Cases covered:
 - `Start` closes stale sessions then launches the loop
 
 The real `foregroundExe()` Win32 function is NOT tested (requires a live desktop
-session with foreground windows — not feasible in CI).
+session with foreground windows; not feasible in CI).
 
 ### Unit Tests: ClaudeSessionService
 

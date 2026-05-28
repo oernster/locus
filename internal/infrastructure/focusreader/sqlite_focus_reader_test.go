@@ -149,7 +149,7 @@ func TestGetFocusDataForSessions_IdleTailGap(t *testing.T) {
 	r := newTestReader(db)
 
 	now := time.Now().Unix()
-	// Session ends 600s before the window end — tail gap > threshold.
+	// Session ends 600s before the window end;tail gap > threshold.
 	insertFocusSession(t, db, `C:\code.exe`, now-1000, now-700)
 
 	win := service.FocusSessionWindow{StartedAt: now - 1000, EndedAt: now}
@@ -164,7 +164,7 @@ func TestGetFocusDataForSessions_Clamping(t *testing.T) {
 	r := newTestReader(db)
 
 	now := time.Now().Unix()
-	// Focus session extends beyond window boundaries — should be clamped.
+	// Focus session extends beyond window boundaries;should be clamped.
 	insertFocusSession(t, db, `C:\code.exe`, now-5000, now+5000)
 
 	win := service.FocusSessionWindow{StartedAt: now - 600, EndedAt: now}
@@ -182,7 +182,7 @@ func TestGetFocusDataForSessions_DeepWorkNonNegative(t *testing.T) {
 	db := newTestDB(t)
 	r := newTestReader(db)
 
-	// Window with nothing in it — deep work should be 0, not negative.
+	// Window with nothing in it;deep work should be 0, not negative.
 	now := time.Now().Unix()
 	win := service.FocusSessionWindow{StartedAt: now - 100, EndedAt: now}
 	result := r.GetFocusDataForSessions([]service.FocusSessionWindow{win})
@@ -225,7 +225,7 @@ func TestGetFocusDataForSessions_MaxAppsInReport(t *testing.T) {
 	start := now - 11000
 	end := now
 
-	// Insert 11 distinct apps — only maxAppsInReport=10 should be returned.
+	// Insert 11 distinct apps;only maxAppsInReport=10 should be returned.
 	for i := int64(1); i <= 11; i++ {
 		exePath := `C:\app` + string(rune('0'+i)) + `.exe`
 		insertFocusSession(t, db, exePath, now-i*1000, now-(i-1)*1000-1)

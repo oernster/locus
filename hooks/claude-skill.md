@@ -6,7 +6,7 @@ platform: windows
 version: "1.0"
 ---
 
-# Locus — Claude Code Integration Context
+# Locus: Claude Code Integration Context
 
 Locus is a native Windows desktop app (system tray, always-on) that combines a four-stage task board with OS-level focus tracking. When the Locus hooks are installed in your Claude Code settings, tool calls made during this session appear on the board as live cards.
 
@@ -73,6 +73,6 @@ Locus polls events every 500ms and emits a board-update signal to the frontend o
 ## Implications for this session
 
 - File edits, writes, and meaningful shell commands are visible on the Locus board in real time.
-- Read-only research (Grep, Read, Glob, WebSearch) is invisible to Locus — only actions that change state appear.
-- Locus does not influence Claude's behavior — it is an observer, not a controller.
+- Read-only research (Grep, Read, Glob, WebSearch) is invisible to Locus - only actions that change state appear.
+- Locus does not influence Claude's behavior - it is an observer, not a controller.
 - If the user says "check the board" or "what's on the board", they mean the Locus task board, not an internal task list.

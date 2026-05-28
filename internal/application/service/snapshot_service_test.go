@@ -97,13 +97,13 @@ func TestSnapshotService_Save_ExistingHashSameName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Second save with same name — should return existing without creating new.
+	// Second save with same name;should return existing without creating new.
 	d2, err := svc.Save(context.Background(), "alpha")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if d1.ID != d2.ID {
-		t.Fatalf("IDs differ: %d vs %d — should reuse existing", d1.ID, d2.ID)
+		t.Fatalf("IDs differ: %d vs %d;should reuse existing", d1.ID, d2.ID)
 	}
 	if len(snapRepo.snaps) != 1 {
 		t.Fatalf("expected 1 snapshot, got %d", len(snapRepo.snaps))
@@ -117,7 +117,7 @@ func TestSnapshotService_Save_ExistingHashDifferentName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Same board state, different name — should rename existing.
+	// Same board state, different name;should rename existing.
 	d, err := svc.Save(context.Background(), "new-name")
 	if err != nil {
 		t.Fatal(err)
@@ -269,7 +269,7 @@ func TestSnapshotService_Load_MigrationOldStages(t *testing.T) {
 }
 
 func TestSnapshotService_Load_MigrationLabelKeyNotInAliases(t *testing.T) {
-	// Stage label key "PLAN" is not in stageAliases — should be kept unchanged.
+	// Stage label key "PLAN" is not in stageAliases;should be kept unchanged.
 	oldJSON := `{"version":4,"board":{"Name":"","UserNamed":false,"StageLabels":{"PLAN":"Backlog","DESIGN":"Planning"}},"commands":[],"outcomes":[]}`
 	snapRepo := &mockSnapshotRepo{
 		snaps: []entity.Snapshot{{ID: 1, Name: "old", Data: oldJSON, Hash: "h", SavedAt: time.Now().UTC()}},
@@ -280,7 +280,7 @@ func TestSnapshotService_Load_MigrationLabelKeyNotInAliases(t *testing.T) {
 	if err := svc.Load(context.Background(), 1); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	// "PLAN" key not in aliases — kept; "DESIGN" migrated to "PLAN".
+	// "PLAN" key not in aliases;kept; "DESIGN" migrated to "PLAN".
 	if boardRepo.state.StageLabels["PLAN"] == "" {
 		t.Fatalf("PLAN label should be present: %v", boardRepo.state.StageLabels)
 	}

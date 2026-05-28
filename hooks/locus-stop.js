@@ -22,7 +22,7 @@ process.stdin.on('end', () => {
     fs.mkdirSync(eventsDir, { recursive: true });
     fs.appendFileSync(eventsPath, JSON.stringify(event) + '\n');
   } catch (_) {
-    // Silently fail — never block Claude.
+    // Silently fail; never block Claude.
   }
   process.exit(0);
 });

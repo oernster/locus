@@ -83,7 +83,7 @@ func TestFocusService_GetFocusDataForStage_WithSessions(t *testing.T) {
 
 func TestFocusService_GetFocusDataForStage_ActiveSession_NilEndedAt(t *testing.T) {
 	now := time.Now().UTC()
-	// Active session with nil EndedAt — should use now as end.
+	// Active session with nil EndedAt;should use now as end.
 	sessRepo := &mockSessionRepo{
 		sessions: []entity.Session{
 			{ID: 1, CommandID: 1, StageId: entity.StageExecute, StartedAt: now, EndedAt: nil},
@@ -100,7 +100,7 @@ func TestFocusService_GetFocusDataForStage_ActiveSession_NilEndedAt(t *testing.T
 func TestFocusService_GetFocusDataForStage_WrongStageSessions(t *testing.T) {
 	now := time.Now().UTC()
 	ended := now.Add(time.Hour)
-	// Sessions exist, but for a different stage — causes rolling window.
+	// Sessions exist, but for a different stage;causes rolling window.
 	sessRepo := &mockSessionRepo{
 		sessions: []entity.Session{
 			{ID: 1, CommandID: 1, StageId: entity.StagePlan, StartedAt: now, EndedAt: &ended},

@@ -22,7 +22,7 @@ wails dev
 wails build
 ```
 
-Output: `build\bin\locus.exe` — single binary with frontend embedded.
+Output: `build\bin\locus.exe` - single binary with frontend embedded.
 
 ## Project Layout
 
@@ -51,21 +51,21 @@ locus/
       service/              Command, Session, Outcome, Board, Snapshot, Focus, ClaudeSession services
     infrastructure/
       persistence/          SQLite: database.go (schema), 5 repository implementations
-      eventwatch/           watcher.go — JSONL sidecar poller, dispatches ClaudeEvents
-      focustracker/         tracker_windows.go — foreground window polling
-      focusreader/          sqlite_focus_reader.go — focus_sessions aggregation
-      wininfo/              app_info.go — PE version info lookup
-      startup/              registry_startup.go — HKCU Run key
-      tray/                 tray.go — lxn/walk NotifyIcon
+      eventwatch/           watcher.go - JSONL sidecar poller, dispatches ClaudeEvents
+      focustracker/         tracker_windows.go - foreground window polling
+      focusreader/          sqlite_focus_reader.go - focus_sessions aggregation
+      wininfo/              app_info.go - PE version info lookup
+      startup/              registry_startup.go - HKCU Run key
+      tray/                 tray.go - lxn/walk NotifyIcon
   tests/
-    structural/             boundary_test.go — Clean Architecture layer enforcement
+    structural/             boundary_test.go - Clean Architecture layer enforcement
   frontend/
     src/
       features/
         commands/           Board.tsx, CommandDrawer, CreateCommandModal, constants
-        focus/              FocusHistory.tsx — collapsible focus panel with period picker
+        focus/              FocusHistory.tsx - collapsible focus panel with period picker
       components/           DestructiveGuardModal, ConfirmDangerModal
-      types/                locus.ts — TypeScript type definitions
+      types/                locus.ts - TypeScript type definitions
     index.html
     vite.config.ts
     tsconfig*.json
@@ -115,7 +115,7 @@ Set-ItemProperty `
 
 The Claude Code integration uses four hook scripts (`hooks/`) and an in-process event watcher.
 
-**Sidecar file:** `%LOCALAPPDATA%\Locus\events.jsonl` — hooks append JSON lines; watcher reads them.
+**Sidecar file:** `%LOCALAPPDATA%\Locus\events.jsonl` - hooks append JSON lines; watcher reads them.
 
 **eventwatch.Watcher** (`internal/infrastructure/eventwatch/`) polls the sidecar every 500ms.
 On `Start()` it seeks to EOF so a Locus restart does not replay prior history.

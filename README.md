@@ -2,8 +2,8 @@
 
 Locus is a native Windows productivity tool that merges two concerns into one surface:
 
-- **Task board** — move work through a fixed four-stage workflow (Plan, Execute, Check, Done)
-- **Focus intelligence** — automatic, OS-level tracking of which applications hold your attention, built directly into Locus with no external tools required
+- **Task board**: move work through a fixed four-stage workflow (Plan, Execute, Check, Done)
+- **Focus intelligence**: automatic, OS-level tracking of which applications hold your attention, built directly into Locus with no external tools required
 
 # <img width="1264" height="785" alt="locus" src="https://github.com/user-attachments/assets/f1c2ce33-b67c-4b69-b49d-c8f460f6da21" />
 
@@ -17,7 +17,7 @@ Locus closes that gap:
 
 - You say you were executing a task. Were you in your editor, or in Discord?
 - You logged two hours on a review. How much was idle time?
-- Your planning sessions — are you actually in research tools, or drifting?
+- Your planning sessions: are you actually in research tools, or drifting?
 
 Locus answers these without any manual input. It tracks OS-level foreground focus natively, recording which application holds your attention at all times while it runs.
 
@@ -119,37 +119,23 @@ See `hooks/README.md` for hook installation instructions.
 
 ### Claude Code skill (optional but recommended)
 
-A Claude Code skill file ships with Locus at `hooks/claude-skill.md`. Installing it gives Claude persistent context about Locus — what appears on the board, what is filtered, and how the session lifecycle works — without you having to explain it each session.
-
-**Install once:**
-
-```powershell
-# Create the skill directory
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills\locus"
-
-# Copy the skill file
-Copy-Item "C:\path\to\locus\hooks\claude-skill.md" `
-  "$env:USERPROFILE\.claude\skills\locus\SKILL.md"
-```
-
-Replace `C:\path\to\locus` with your actual Locus repository path.
+`install.ps1` automatically installs a skill file to `~/.claude/skills/locus/SKILL.md`. This gives Claude persistent context about Locus: what appears on the board, what is filtered, and how the session lifecycle works; without you having to explain it each session.
 
 **Load the skill at the start of any Claude Code session:**
 
-Paste this prompt into Claude Code once per session (or add it to your global `~/.claude/CLAUDE.md` to load it automatically):
-
 ```
-I have Locus running with Claude Code hooks installed. Load the locus skill:
 /go locus
 ```
 
-Or if you want it always active, add this line to your `~/.claude/CLAUDE.md`:
+Or to load it automatically every session, add this to your `~/.claude/CLAUDE.md`:
 
 ```markdown
 ## Locus Integration
 
-Locus hooks are active. At session start, load: `C:\Users\<you>\.claude\skills\locus\SKILL.md`
+Locus hooks are active. At session start, load: ~/.claude/skills/locus/SKILL.md
 ```
+
+**Important: restart Claude CLI after running `install.ps1`** for the hooks to take effect. The hooks are registered in `~/.claude/settings.json` during installation and are read at Claude CLI startup.
 
 ---
 

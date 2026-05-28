@@ -78,7 +78,7 @@ Replace `C:\\path\\to\\locus` with the actual path to your Locus repository.
 ## Claude Code skill
 
 `claude-skill.md` (this directory) is a Claude Code skill file that gives Claude
-persistent context about Locus — what appears on the board, what is filtered, and
+persistent context about Locus - what appears on the board, what is filtered, and
 how the session lifecycle works.
 
 Install it once:

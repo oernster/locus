@@ -51,7 +51,7 @@ func TestSQLiteCommandRepository_Create_ZeroCreatedAt(t *testing.T) {
 		Title:   "No time",
 		Status:  entity.StatusNotStarted,
 		StageId: entity.StagePlan,
-		// CreatedAt zero — repo should default it.
+		// CreatedAt zero;repo should default it.
 	}
 	created, err := repo.Create(ctx, cmd)
 	if err != nil {
