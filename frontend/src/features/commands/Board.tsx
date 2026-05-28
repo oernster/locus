@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { EventsOn } from "../../../wailsjs/runtime/runtime";
 
 import locusLogo from "../../assets/locus.png";
 
@@ -304,6 +305,12 @@ export function Board() {
   }
 
   useEffect(() => { void refresh(); }, []);
+
+  // Auto-refresh when a dynamic board item is created, advanced, or archived.
+  useEffect(() => {
+    const cancel = EventsOn("locus:board-updated", () => { void refresh(); });
+    return () => { cancel(); };
+  }, []);
 
   useEffect(() => {
     if (renamingSnapshotId === null) return;
@@ -1094,7 +1101,7 @@ export function Board() {
               {(commandsByStageId.get(stage_id) ?? []).map((cmd) => (
                 <div
                   key={cmd.id}
-                  className={`${styles.card} ${draggingId === cmd.id ? styles.cardDragging : ""} ${activeCommandId === cmd.id ? styles.cardActiveTask : ""} ${dropTarget?.stage_id === stage_id && dropTarget.beforeId === cmd.id ? styles.cardDropBefore : ""} ${dropTarget?.stage_id === stage_id && dropTarget.afterId === cmd.id ? styles.cardDropAfter : ""}`}
+                  className={`${styles.card} ${cmd.source === "claude" ? styles.cardDynamic : ""} ${draggingId === cmd.id ? styles.cardDragging : ""} ${activeCommandId === cmd.id ? styles.cardActiveTask : ""} ${dropTarget?.stage_id === stage_id && dropTarget.beforeId === cmd.id ? styles.cardDropBefore : ""} ${dropTarget?.stage_id === stage_id && dropTarget.afterId === cmd.id ? styles.cardDropAfter : ""}`}
                   onClickCapture={(e) => {
                     if (!startMode || startDisabled) return;
                     e.preventDefault();

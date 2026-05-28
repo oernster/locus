@@ -36,15 +36,22 @@ locus/
   install.ps1               One-shot installer (build + register Run key + launch)
   uninstall.ps1             Uninstaller
   Makefile
+  hooks/
+    locus-session-start.js  Claude Code hook: session_start event
+    locus-pre-tool.js       Claude Code hook: tool_use event (PreToolUse)
+    locus-post-tool.js      Claude Code hook: tool_result event (PostToolUse)
+    locus-stop.js           Claude Code hook: session_end event (Stop)
+    README.md               Hook installation instructions
   internal/
     domain/
-      entity/               Stage, Command, Session, Outcome, BoardState, Snapshot
+      entity/               Stage, Command, Session, Outcome, BoardState, Snapshot, ClaudeEvent
       repository/           Repository interfaces (5 interfaces)
     application/
       dto/                  Command, Session, Outcome, Board, Snapshot, Focus DTOs
-      service/              Command, Session, Outcome, Board, Snapshot, Focus services
+      service/              Command, Session, Outcome, Board, Snapshot, Focus, ClaudeSession services
     infrastructure/
       persistence/          SQLite: database.go (schema), 5 repository implementations
+      eventwatch/           watcher.go — JSONL sidecar poller, dispatches ClaudeEvents
       focustracker/         tracker_windows.go — foreground window polling
       focusreader/          sqlite_focus_reader.go — focus_sessions aggregation
       wininfo/              app_info.go — PE version info lookup
@@ -103,6 +110,26 @@ Set-ItemProperty `
   -Name 'locus' `
   -Value '"C:\Users\<you>\AppData\Local\locus\locus.exe"'
 ```
+
+## Claude Code Integration
+
+The Claude Code integration uses four hook scripts (`hooks/`) and an in-process event watcher.
+
+**Sidecar file:** `%LOCALAPPDATA%\Locus\events.jsonl` — hooks append JSON lines; watcher reads them.
+
+**eventwatch.Watcher** (`internal/infrastructure/eventwatch/`) polls the sidecar every 500ms.
+On `Start()` it seeks to EOF so a Locus restart does not replay prior history.
+
+**ClaudeSessionService** (`internal/application/service/claude_session_service.go`) processes events:
+
+- `tool_use` for `Edit`, `Write`, `NotebookEdit`, `Bash` (non-trivial) creates a board item.
+- `tool_result` success moves the item directly to DONE.
+- `session_end` cleans state and auto-saves a snapshot named `"Session YYYY-MM-DD HH:MM"`.
+
+**Noise filtering:** trivial Bash commands are dropped. Compound commands with trivial prefixes
+(`cd /path && go test ./...`) have the prefix stripped before the check.
+
+Hook installation: see `hooks/README.md`.
 
 ## IPC Boundary
 

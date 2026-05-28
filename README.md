@@ -79,6 +79,78 @@ Only one session can be active at a time. Starting a session requires selecting 
 
 ---
 
+## Claude Code Integration
+
+Locus can populate the board automatically from an active Claude Code session.
+Install the four hook scripts in `hooks/` into your Claude Code settings to enable it.
+
+When active, each `Edit`, `Write`, `NotebookEdit`, or `Bash` tool call appears
+as a dynamic board card with an **amber left border**:
+
+- `Edit` / `Write` / `NotebookEdit` start at **EXECUTE**.
+- `Bash` with test keywords (`go test`, `pytest`, `jest`, etc.) starts at **CHECK**.
+- `Bash` with other meaningful commands starts at **EXECUTE**.
+- On tool completion (success), the item moves directly to **DONE** with status Complete.
+- On tool failure, the item stays at its current stage.
+
+**Noise filtering:** trivial Bash commands (`cd`, `ls`, `grep`, `cat`, `echo`, `find`, `sed`, `awk`, `wc`, `sort`, PowerShell read-only equivalents, etc.) are silently dropped. Compound commands such as `cd /path && go test ./...` are also handled: the leading trivial segment is stripped before the triviality check, so the meaningful part (`go test ./...`) still produces a board item.
+
+**Title classification:** Bash commands are classified into readable labels:
+
+| Pattern | Label example |
+|---|---|
+| `git log`, `git diff`, etc. | `Git: log` |
+| `go test`, `pytest`, `jest`, etc. | `Test: run suite` |
+| `go build`, `wails build`, `make`, etc. | `Build: compile` |
+| `npm install`, `go get`, `pip install`, etc. | `Install: dependencies` |
+| `wails dev`, `go run`, `.exe`, `.sh`, etc. | `Launch: app` |
+| `cp`, `mv`, `rm`, `mkdir`, etc. | `Files: organise` |
+| Other | First 64 chars of command |
+
+`Edit` / `Write` / `NotebookEdit` items are labelled `Edit: filename`, `Write: filename`, etc.
+
+**Session end:** when the Claude session ends, board items are **kept** on the board. A snapshot named `Session YYYY-MM-DD HH:MM` is saved automatically so the session state is always recoverable. Items remain visible until you reset or clear the board manually.
+
+Dynamic items coexist with manual items. They can be dragged, renamed, and deleted like any manual card.
+
+See `hooks/README.md` for hook installation instructions.
+
+### Claude Code skill (optional but recommended)
+
+A Claude Code skill file ships with Locus at `hooks/claude-skill.md`. Installing it gives Claude persistent context about Locus — what appears on the board, what is filtered, and how the session lifecycle works — without you having to explain it each session.
+
+**Install once:**
+
+```powershell
+# Create the skill directory
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills\locus"
+
+# Copy the skill file
+Copy-Item "C:\path\to\locus\hooks\claude-skill.md" `
+  "$env:USERPROFILE\.claude\skills\locus\SKILL.md"
+```
+
+Replace `C:\path\to\locus` with your actual Locus repository path.
+
+**Load the skill at the start of any Claude Code session:**
+
+Paste this prompt into Claude Code once per session (or add it to your global `~/.claude/CLAUDE.md` to load it automatically):
+
+```
+I have Locus running with Claude Code hooks installed. Load the locus skill:
+/go locus
+```
+
+Or if you want it always active, add this line to your `~/.claude/CLAUDE.md`:
+
+```markdown
+## Locus Integration
+
+Locus hooks are active. At session start, load: `C:\Users\<you>\.claude\skills\locus\SKILL.md`
+```
+
+---
+
 ## Focus intelligence
 
 Locus tracks foreground focus natively using the Windows `GetForegroundWindow` and `QueryFullProcessImageNameW` APIs. No external tool is required.

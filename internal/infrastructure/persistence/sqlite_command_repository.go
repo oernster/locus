@@ -19,7 +19,7 @@ func NewSQLiteCommandRepository(db *sql.DB) *SQLiteCommandRepository {
 	return &SQLiteCommandRepository{db: db}
 }
 
-// List returns commands, optionally filtered to a single stage.
+// List returns active (non-archived) commands, optionally filtered to a single stage.
 func (r *SQLiteCommandRepository) List(ctx context.Context, stageId *entity.StageId) ([]entity.Command, error) {
 	var (
 		rows *sql.Rows
@@ -27,13 +27,13 @@ func (r *SQLiteCommandRepository) List(ctx context.Context, stageId *entity.Stag
 	)
 	if stageId != nil {
 		rows, err = r.db.QueryContext(ctx,
-			`SELECT id, title, status, stage_id, sort_index, created_at
-			 FROM commands WHERE stage_id = ? ORDER BY sort_index, id`,
+			`SELECT id, title, status, stage_id, sort_index, created_at, source, session_id, archived_at
+			 FROM commands WHERE stage_id = ? AND archived_at IS NULL ORDER BY sort_index, id`,
 			string(*stageId))
 	} else {
 		rows, err = r.db.QueryContext(ctx,
-			`SELECT id, title, status, stage_id, sort_index, created_at
-			 FROM commands ORDER BY sort_index, id`)
+			`SELECT id, title, status, stage_id, sort_index, created_at, source, session_id, archived_at
+			 FROM commands WHERE archived_at IS NULL ORDER BY sort_index, id`)
 	}
 	if err != nil {
 		return nil, err
@@ -42,10 +42,11 @@ func (r *SQLiteCommandRepository) List(ctx context.Context, stageId *entity.Stag
 	return scanCommands(rows)
 }
 
-// Get returns a single command by ID.
+// Get returns a single command by ID (including archived).
 func (r *SQLiteCommandRepository) Get(ctx context.Context, id int64) (entity.Command, error) {
 	row := r.db.QueryRowContext(ctx,
-		`SELECT id, title, status, stage_id, sort_index, created_at FROM commands WHERE id = ?`, id)
+		`SELECT id, title, status, stage_id, sort_index, created_at, source, session_id, archived_at
+		 FROM commands WHERE id = ?`, id)
 	return scanCommand(row)
 }
 
@@ -54,10 +55,14 @@ func (r *SQLiteCommandRepository) Create(ctx context.Context, cmd entity.Command
 	if cmd.CreatedAt.IsZero() {
 		cmd.CreatedAt = time.Now().UTC()
 	}
+	if cmd.Source == "" {
+		cmd.Source = entity.SourceManual
+	}
 	res, err := r.db.ExecContext(ctx,
-		`INSERT INTO commands (title, status, stage_id, sort_index, created_at)
-		 VALUES (?, ?, ?, ?, ?)`,
-		cmd.Title, string(cmd.Status), string(cmd.StageId), cmd.SortIndex, cmd.CreatedAt.Unix())
+		`INSERT INTO commands (title, status, stage_id, sort_index, created_at, source, session_id)
+		 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		cmd.Title, string(cmd.Status), string(cmd.StageId), cmd.SortIndex,
+		cmd.CreatedAt.Unix(), cmd.Source, cmd.SessionID)
 	if err != nil {
 		return entity.Command{}, err
 	}
@@ -103,30 +108,49 @@ func (r *SQLiteCommandRepository) Reorder(ctx context.Context, byStageId map[ent
 	return tx.Commit()
 }
 
+// ArchiveSession soft-deletes all Claude-sourced commands for sessionID by
+// setting their archived_at timestamp. Archived commands are excluded from List.
+func (r *SQLiteCommandRepository) ArchiveSession(ctx context.Context, sessionID string, archivedAt time.Time) error {
+	_, err := r.db.ExecContext(ctx,
+		`UPDATE commands SET archived_at=? WHERE session_id=? AND archived_at IS NULL`,
+		archivedAt.Unix(), sessionID)
+	return err
+}
+
 type rowScanner interface {
 	Scan(dest ...any) error
 }
 
 func scanCommand(row rowScanner) (entity.Command, error) {
 	var (
-		id, createdAt int64
+		id, createdAt      int64
+		archivedAt         sql.NullInt64
 		title, status, stageId string
-		sortIndex     int
+		source, sessionID  string
+		sortIndex          int
 	)
-	if err := row.Scan(&id, &title, &status, &stageId, &sortIndex, &createdAt); err != nil {
+	if err := row.Scan(&id, &title, &status, &stageId, &sortIndex, &createdAt,
+		&source, &sessionID, &archivedAt); err != nil {
 		if err == sql.ErrNoRows {
 			return entity.Command{}, fmt.Errorf("command not found: %w", err)
 		}
 		return entity.Command{}, err
 	}
-	return entity.Command{
+	cmd := entity.Command{
 		ID:        id,
 		Title:     title,
 		Status:    entity.Status(status),
 		StageId:   entity.StageId(stageId),
 		SortIndex: sortIndex,
 		CreatedAt: time.Unix(createdAt, 0).UTC(),
-	}, nil
+		Source:    source,
+		SessionID: sessionID,
+	}
+	if archivedAt.Valid {
+		t := time.Unix(archivedAt.Int64, 0).UTC()
+		cmd.ArchivedAt = &t
+	}
+	return cmd, nil
 }
 
 func scanCommands(rows *sql.Rows) ([]entity.Command, error) {

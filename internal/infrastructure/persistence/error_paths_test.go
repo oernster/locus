@@ -69,6 +69,14 @@ func TestSQLiteCommandRepository_Reorder_DBError(t *testing.T) {
 	}
 }
 
+func TestSQLiteCommandRepository_ArchiveSession_DBError(t *testing.T) {
+	err := NewSQLiteCommandRepository(closedDB(t)).ArchiveSession(
+		context.Background(), "session-x", time.Now().UTC())
+	if err == nil {
+		t.Fatal("expected error on closed DB")
+	}
+}
+
 // --- BoardRepository error paths ---
 
 func TestSQLiteBoardRepository_Get_DBError(t *testing.T) {

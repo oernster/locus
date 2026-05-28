@@ -3,8 +3,11 @@ package main
 import (
 	"context"
 
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+
 	"github.com/oernster/locus/internal/application/dto"
 	"github.com/oernster/locus/internal/application/service"
+	"github.com/oernster/locus/internal/infrastructure/eventwatch"
 )
 
 // App is the Wails application struct. All exported methods are bound to the
@@ -17,6 +20,12 @@ type App struct {
 	boardSvc    *service.BoardService
 	snapshotSvc *service.SnapshotService
 	focusSvc    *service.FocusService
+	claudeSvc   *service.ClaudeSessionService
+	watcher     *eventwatch.Watcher
+	// boardNotify receives a signal whenever a dynamic board item is created,
+	// advanced, or archived. The startup goroutine forwards these to the frontend
+	// as a "locus:board-updated" Wails event.
+	boardNotify <-chan struct{}
 }
 
 // NewApp creates an App with all services wired in.
@@ -27,6 +36,9 @@ func NewApp(
 	boardSvc *service.BoardService,
 	snapshotSvc *service.SnapshotService,
 	focusSvc *service.FocusService,
+	claudeSvc *service.ClaudeSessionService,
+	watcher *eventwatch.Watcher,
+	boardNotify <-chan struct{},
 ) *App {
 	return &App{
 		commandSvc:  commandSvc,
@@ -35,12 +47,25 @@ func NewApp(
 		boardSvc:    boardSvc,
 		snapshotSvc: snapshotSvc,
 		focusSvc:    focusSvc,
+		claudeSvc:   claudeSvc,
+		watcher:     watcher,
+		boardNotify: boardNotify,
 	}
 }
 
-// startup is called when the app starts. The context is saved for later use.
+// startup is called when the app starts. The context is saved, the event watcher
+// is started, and a goroutine forwards board-update notifications to the frontend.
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	if a.watcher != nil {
+		a.watcher.Start()
+	}
+	// Forward dynamic-item notifications to the React frontend.
+	go func() {
+		for range a.boardNotify {
+			runtime.EventsEmit(ctx, "locus:board-updated")
+		}
+	}()
 }
 
 // --- Command methods ---

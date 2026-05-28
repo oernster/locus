@@ -530,8 +530,6 @@
   min-height: 0;
   padding-right: 10px;
   position: relative;
-  /* Limit top half to roughly half the column height */
-  max-height: 50%;
 }
 
 .cards::-webkit-scrollbar { width: 10px; }
@@ -568,6 +566,7 @@
 }
 
 .cardActiveTask { border-color: rgba(90, 220, 140, 0.55); }
+.cardDynamic { border-left: 3px solid rgba(245, 158, 11, 0.85); }
 .cardDragging { opacity: 0.85; }
 
 .cardDragging::after,

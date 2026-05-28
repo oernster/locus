@@ -13,6 +13,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"github.com/oernster/locus/internal/application/service"
+	"github.com/oernster/locus/internal/infrastructure/eventwatch"
 	"github.com/oernster/locus/internal/infrastructure/focusreader"
 	"github.com/oernster/locus/internal/infrastructure/focustracker"
 	"github.com/oernster/locus/internal/infrastructure/persistence"
@@ -66,8 +67,33 @@ func main() {
 	focusReader := focusreader.NewSQLiteFocusReader(db)
 	focusSvc := service.NewFocusService(sessionRepo, focusReader)
 
+	// Wire Claude session integration.
+	// boardNotify is a buffered channel that ClaudeSessionService signals on each
+	// board-mutating event. The App startup goroutine drains it and emits a
+	// Wails frontend event so the React board auto-refreshes.
+	boardNotify := make(chan struct{}, 1)
+	claudeSvc := service.NewClaudeSessionService(commandRepo, snapshotSvc, func() {
+		select {
+		case boardNotify <- struct{}{}:
+		default: // already pending; coalesce
+		}
+	})
+
+	// Resolve sidecar path: %LOCALAPPDATA%\Locus\events.jsonl
+	localAppData := os.Getenv("LOCALAPPDATA")
+	if localAppData == "" {
+		localAppData = appData // Fallback if LOCALAPPDATA unset.
+	}
+	sidecarDir := filepath.Join(localAppData, "Locus")
+	if err := os.MkdirAll(sidecarDir, 0o700); err != nil {
+		log.Printf("create sidecar dir: %v", err)
+	}
+	sidecarPath := filepath.Join(sidecarDir, "events.jsonl")
+	watcher := eventwatch.New(sidecarPath, claudeSvc.HandleEvent)
+
 	// Create the Wails App.
-	app := NewApp(commandSvc, sessionSvc, outcomeSvc, boardSvc, snapshotSvc, focusSvc)
+	app := NewApp(commandSvc, sessionSvc, outcomeSvc, boardSvc, snapshotSvc, focusSvc,
+		claudeSvc, watcher, boardNotify)
 
 	// Start walk tray in a background goroutine.
 	ready := make(chan struct{})

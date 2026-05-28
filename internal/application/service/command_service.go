@@ -109,6 +109,10 @@ func (s *CommandService) Reorder(ctx context.Context, byStageId map[string][]int
 }
 
 func toCommandDTO(c entity.Command) dto.CommandDTO {
+	source := c.Source
+	if source == "" {
+		source = entity.SourceManual
+	}
 	return dto.CommandDTO{
 		ID:        c.ID,
 		Title:     c.Title,
@@ -116,6 +120,8 @@ func toCommandDTO(c entity.Command) dto.CommandDTO {
 		StageId:   string(c.StageId),
 		SortIndex: c.SortIndex,
 		CreatedAt: c.CreatedAt.UTC().Format("2006-01-02T15:04:05Z"),
+		Source:    source,
+		SessionID: c.SessionID,
 	}
 }
 

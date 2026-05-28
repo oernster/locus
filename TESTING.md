@@ -18,8 +18,9 @@ go test ./internal/application/service/... -v
 | Package | Coverage | Notes |
 |---|---|---|
 | `domain/entity` | ~100% | Constant and type definitions |
-| `application/service` | ~99% | All 6 services with mock repos |
+| `application/service` | ~99% | All 7 services with mock repos |
 | `infrastructure/persistence` | ~93% | All repos with in-memory SQLite |
+| `infrastructure/eventwatch` | ~90% | Temp-file-based JSONL poll tests |
 | `infrastructure/focusreader` | ~89% | In-memory SQLite + stub appInfoFn |
 | `infrastructure/focustracker` | ~53% | Win32 `foregroundExe()` not callable in tests |
 | `tests/structural` | 100% | Layer boundary enforcement |
@@ -103,6 +104,34 @@ avoid real Win32 API calls. Cases covered:
 The real `foregroundExe()` Win32 function is NOT tested (requires a live desktop
 session with foreground windows — not feasible in CI).
 
+### Unit Tests: ClaudeSessionService
+
+`claude_session_service_test.go` exercises all event-handling paths using the
+`mockCommandRepo` from `mocks_test.go`. Key cases:
+
+- `tool_use` for an item-creating tool creates a board item at the correct stage.
+- `tool_use` for a non-item tool (Read/Grep/etc.) creates nothing.
+- `tool_use` for a trivial Bash command (`cd`, `ls`, `grep`, etc.) creates nothing.
+- `tool_use` for a compound Bash with trivial prefix (`cd /path && go test ./...`) strips the prefix and creates an item for the meaningful part.
+- `tool_result` success moves the item directly to DONE with `StatusComplete`.
+- `tool_result` failure leaves the item at its current stage.
+- `tool_result` with no pending item is a safe no-op.
+- Bash with test keywords is placed at CHECK; Bash others at EXECUTE.
+- `session_end` cleans the pending stack and triggers an auto-snapshot; items remain on the board.
+- Multiple sessions are tracked independently (separate pending stacks).
+- `inferStage`, `formatTitle`, `fileTitle`, `bashTitle`, `isTrivialBash`, `meaningfulSegment` helpers are tested in isolation.
+
+### Integration Tests: Event Watcher
+
+`eventwatch/watcher_test.go` uses `t.TempDir()` to create real files:
+
+- No file: poll is a no-op (no panic).
+- New lines after first poll are dispatched.
+- Second poll with no new content is a no-op (offset advanced correctly).
+- Malformed JSON lines are skipped; valid lines following them are still dispatched.
+- Empty lines are skipped.
+- `Start`/`Stop` lifecycle does not panic; double-Stop is safe.
+
 ## Mocking Repositories
 
 All repository interfaces are in `internal/domain/repository/`. The canonical mocks
@@ -110,14 +139,15 @@ live in `internal/application/service/mocks_test.go` and support error injection
 
 ```go
 type mockCommandRepo struct {
-    cmds      []entity.Command
-    nextID    int64
-    listErr   error
-    getErr    error
-    createErr error
-    updateErr error
-    deleteErr error
-    reorderErr error
+    cmds        []entity.Command
+    nextID      int64
+    listErr     error
+    getErr      error
+    createErr   error
+    updateErr   error
+    deleteErr   error
+    reorderErr  error
+    archiveErr  error  // added for ClaudeSessionService tests
 }
 ```
 

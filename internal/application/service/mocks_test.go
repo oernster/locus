@@ -14,14 +14,15 @@ var errNotFound = errors.New("not found")
 
 // mockCommandRepo is an in-memory CommandRepository for testing.
 type mockCommandRepo struct {
-	cmds       []entity.Command
-	nextID     int64
-	listErr    error
-	getErr     error
-	createErr  error
-	updateErr  error
-	deleteErr  error
-	reorderErr error
+	cmds        []entity.Command
+	nextID      int64
+	listErr     error
+	getErr      error
+	createErr   error
+	updateErr   error
+	deleteErr   error
+	reorderErr  error
+	archiveErr  error
 }
 
 func (m *mockCommandRepo) List(_ context.Context, stageId *entity.StageId) ([]entity.Command, error) {
@@ -93,6 +94,22 @@ func (m *mockCommandRepo) Delete(_ context.Context, id int64) error {
 
 func (m *mockCommandRepo) Reorder(_ context.Context, _ map[entity.StageId][]int64) error {
 	return m.reorderErr
+}
+
+func (m *mockCommandRepo) ArchiveSession(_ context.Context, sessionID string, _ time.Time) error {
+	if m.archiveErr != nil {
+		return m.archiveErr
+	}
+	// Mark commands with matching session_id as having a non-nil archived indicator.
+	// For testing purposes, remove them from the in-memory slice.
+	var remaining []entity.Command
+	for _, c := range m.cmds {
+		if c.SessionID != sessionID {
+			remaining = append(remaining, c)
+		}
+	}
+	m.cmds = remaining
+	return nil
 }
 
 // mockBoardRepo is an in-memory BoardRepository for testing.

@@ -8,4 +8,6 @@ type CommandDTO struct {
 	StageId   string `json:"stage_id"`
 	SortIndex int    `json:"sort_index"`
 	CreatedAt string `json:"created_at"` // ISO 8601 UTC
+	Source    string `json:"source"`     // "manual" or "claude"
+	SessionID string `json:"session_id"` // Claude session UUID; empty for manual
 }

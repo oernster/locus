@@ -15,6 +15,8 @@ export interface CommandDTO {
   stage_id: StageId;
   sort_index: number;
   created_at: string; // ISO 8601 UTC
+  source: "manual" | "claude"; // origin of this item
+  session_id: string;           // Claude session UUID; empty for manual items
 }
 
 export interface SessionDTO {

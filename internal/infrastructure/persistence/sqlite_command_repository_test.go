@@ -151,6 +151,83 @@ func TestSQLiteCommandRepository_Delete(t *testing.T) {
 	}
 }
 
+func TestSQLiteCommandRepository_Source_Default(t *testing.T) {
+	db := newTestDB(t)
+	repo := NewSQLiteCommandRepository(db)
+	ctx := context.Background()
+
+	created, err := repo.Create(ctx, entity.Command{
+		Title: "Manual", Status: entity.StatusNotStarted, StageId: entity.StagePlan, CreatedAt: time.Now().UTC(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, _ := repo.Get(ctx, created.ID)
+	if got.Source != entity.SourceManual {
+		t.Errorf("Source = %q, want %q", got.Source, entity.SourceManual)
+	}
+}
+
+func TestSQLiteCommandRepository_Claude_Source(t *testing.T) {
+	db := newTestDB(t)
+	repo := NewSQLiteCommandRepository(db)
+	ctx := context.Background()
+
+	created, err := repo.Create(ctx, entity.Command{
+		Title: "Dynamic", Status: entity.StatusNotStarted, StageId: entity.StageExecute,
+		Source: entity.SourceClaude, SessionID: "sess-abc", CreatedAt: time.Now().UTC(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, _ := repo.Get(ctx, created.ID)
+	if got.Source != entity.SourceClaude {
+		t.Errorf("Source = %q, want %q", got.Source, entity.SourceClaude)
+	}
+	if got.SessionID != "sess-abc" {
+		t.Errorf("SessionID = %q, want sess-abc", got.SessionID)
+	}
+	if got.ArchivedAt != nil {
+		t.Error("ArchivedAt should be nil before archival")
+	}
+}
+
+func TestSQLiteCommandRepository_ArchiveSession(t *testing.T) {
+	db := newTestDB(t)
+	repo := NewSQLiteCommandRepository(db)
+	ctx := context.Background()
+
+	// Create two dynamic items for session s1 and one manual item.
+	_, _ = repo.Create(ctx, entity.Command{
+		Title: "D1", Status: entity.StatusNotStarted, StageId: entity.StageExecute,
+		Source: entity.SourceClaude, SessionID: "s1", CreatedAt: time.Now().UTC(),
+	})
+	_, _ = repo.Create(ctx, entity.Command{
+		Title: "D2", Status: entity.StatusNotStarted, StageId: entity.StageCheck,
+		Source: entity.SourceClaude, SessionID: "s1", CreatedAt: time.Now().UTC(),
+	})
+	_, _ = repo.Create(ctx, entity.Command{
+		Title: "Manual", Status: entity.StatusNotStarted, StageId: entity.StagePlan,
+		Source: entity.SourceManual, CreatedAt: time.Now().UTC(),
+	})
+
+	if err := repo.ArchiveSession(ctx, "s1", time.Now().UTC()); err != nil {
+		t.Fatal(err)
+	}
+
+	all, err := repo.List(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Only the manual item should remain visible.
+	if len(all) != 1 {
+		t.Fatalf("List after archive: want 1, got %d", len(all))
+	}
+	if all[0].Title != "Manual" {
+		t.Errorf("unexpected item after archive: %q", all[0].Title)
+	}
+}
+
 func TestSQLiteCommandRepository_Reorder(t *testing.T) {
 	db := newTestDB(t)
 	repo := NewSQLiteCommandRepository(db)
