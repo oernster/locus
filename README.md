@@ -83,7 +83,7 @@ Only one session can be active at a time. Starting a session requires selecting 
 
 ## Claude Code Integration
 
-Locus populates the board automatically from an active Claude Code session. Hook scripts and a skill file are installed and uninstalled automatically by `install.ps1` / `uninstall.ps1` — no manual hook setup needed. Restart Claude CLI after installation for hooks to take effect.
+Locus populates the board automatically from an active Claude Code session. Hook scripts and a skill file are installed and uninstalled automatically by `install.ps1` / `uninstall.ps1`; no manual hook setup needed. Restart Claude CLI after installation for hooks to take effect.
 
 Each `Edit`, `Write`, `NotebookEdit`, or `Bash` tool call appears as a dynamic board card with an **amber left border**:
 
