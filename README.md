@@ -83,21 +83,18 @@ Only one session can be active at a time. Starting a session requires selecting 
 
 ## Claude Code Integration
 
-Locus can populate the board automatically from an active Claude Code session.
-Install the four hook scripts in `hooks/` into your Claude Code settings to enable it.
+Locus populates the board automatically from an active Claude Code session. Hook scripts and a skill file are installed and uninstalled automatically by `install.ps1` / `uninstall.ps1` — no manual hook setup needed. Restart Claude CLI after installation for hooks to take effect.
 
-When active, each `Edit`, `Write`, `NotebookEdit`, or `Bash` tool call appears
-as a dynamic board card with an **amber left border**:
+Each `Edit`, `Write`, `NotebookEdit`, or `Bash` tool call appears as a dynamic board card with an **amber left border**:
 
 - `Edit` / `Write` / `NotebookEdit` start at **EXECUTE**.
 - `Bash` with test keywords (`go test`, `pytest`, `jest`, etc.) starts at **CHECK**.
 - `Bash` with other meaningful commands starts at **EXECUTE**.
-- On tool completion (success), the item moves directly to **DONE** with status Complete.
-- On tool failure, the item stays at its current stage.
+- On completion (success), the item moves to **DONE**. On failure, it stays in place.
 
-**Noise filtering:** trivial Bash commands (`cd`, `ls`, `grep`, `cat`, `echo`, `find`, `sed`, `awk`, `wc`, `sort`, PowerShell read-only equivalents, etc.) are silently dropped. Compound commands such as `cd /path && go test ./...` are also handled: the leading trivial segment is stripped before the triviality check, so the meaningful part (`go test ./...`) still produces a board item.
+**Noise filtering:** trivial commands (`cd`, `ls`, `grep`, `cat`, `echo`, `find`, `sed`, `awk`, `wc`, `sort`, PowerShell read-only equivalents, etc.) are silently dropped. Compound commands such as `cd /path && go test ./...` strip the trivial prefix first, so the meaningful part still produces a board item.
 
-**Title classification:** Bash commands are classified into readable labels:
+**Title classification:**
 
 | Pattern | Label example |
 |---|---|
@@ -111,31 +108,27 @@ as a dynamic board card with an **amber left border**:
 
 `Edit` / `Write` / `NotebookEdit` items are labelled `Edit: filename`, `Write: filename`, etc.
 
-**Session end:** when the Claude session ends, board items are **kept** on the board. A snapshot named `Session YYYY-MM-DD HH:MM` is saved automatically so the session state is always recoverable. Items remain visible until you reset or clear the board manually.
+**Session end:** board items are kept. A snapshot named `Session YYYY-MM-DD HH:MM` is saved automatically. Items remain visible until you reset or clear the board manually.
 
-Dynamic items coexist with manual items. They can be dragged, renamed, and deleted like any manual card.
-
-See `hooks/README.md` for hook installation instructions.
+Dynamic items coexist with manual items and can be dragged, renamed, and deleted like any manual card.
 
 ### Claude Code skill (optional but recommended)
 
-`install.ps1` automatically installs a skill file to `~/.claude/skills/locus/SKILL.md`. This gives Claude persistent context about Locus: what appears on the board, what is filtered, and how the session lifecycle works; without you having to explain it each session.
+`install.ps1` installs a skill file to `~/.claude/skills/locus/SKILL.md`, giving Claude persistent context about Locus without you having to explain it each session.
 
-**Load the skill at the start of any Claude Code session:**
+Load it at the start of any Claude Code session:
 
 ```
 /go locus
 ```
 
-Or to load it automatically every session, add this to your `~/.claude/CLAUDE.md`:
+Or load it automatically every session by adding this to `~/.claude/CLAUDE.md`:
 
 ```markdown
 ## Locus Integration
 
 Locus hooks are active. At session start, load: ~/.claude/skills/locus/SKILL.md
 ```
-
-**Important: restart Claude CLI after running `install.ps1`** for the hooks to take effect. The hooks are registered in `~/.claude/settings.json` during installation and are read at Claude CLI startup.
 
 ---
 
