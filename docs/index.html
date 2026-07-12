@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Locus: Task Board and Native Focus Tracking for Windows</title>
+<meta name="description" content="Locus is a native Windows productivity tool that merges a four-stage task board with automatic, OS-level focus tracking. It populates the board directly from your Claude Code session and records which application holds your attention, with no manual input. Local-first, single Go binary.">
+<meta name="keywords" content="productivity, task board, kanban, focus tracking, time tracking, Windows, Go, Wails, Claude Code, local-first, deep work, SQLite">
+<meta name="author" content="Oliver Ernster">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0f1115">
+<link rel="canonical" href="https://oernster.github.io/locus/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Locus">
+<meta property="og:title" content="Locus: Task Board and Native Focus Tracking for Windows">
+<meta property="og:description" content="A task board that knows whether your intent matched your attention. Automatic OS-level focus tracking, a four-stage board and live Claude Code integration, all local-first.">
+<meta property="og:url" content="https://oernster.github.io/locus/">
+<meta property="og:image" content="https://oernster.github.io/locus/assets/locus-512.png">
+<meta property="og:image:alt" content="The Locus application icon">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Locus: Task Board and Native Focus Tracking">
+<meta name="twitter:description" content="Task intent meets measured attention. A four-stage board with native Windows focus tracking and live Claude Code integration. Local-first.">
+<meta name="twitter:image" content="https://oernster.github.io/locus/assets/locus-512.png">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/locus-64.png">
+<link rel="apple-touch-icon" href="assets/locus-256.png">
+<link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Locus", "applicationCategory": "BusinessApplication", "operatingSystem": "Windows 10, Windows 11", "description": "Locus is a native Windows productivity tool that merges a four-stage task board (Plan, Execute, Check, Done) with automatic OS-level focus tracking. It populates the board from an active Claude Code session and records which application holds your attention while it runs.", "url": "https://oernster.github.io/locus/", "image": "https://oernster.github.io/locus/assets/locus-512.png", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}, "author": {"@type": "Person", "name": "Oliver Ernster", "url": "https://www.crankthecode.com/"}, "audience": {"@type": "Audience", "audienceType": "Developers and knowledge workers who want to align intent with attention"}, "keywords": "productivity, task board, focus tracking, Windows, Go, Wails, Claude Code, local-first", "license": "https://www.gnu.org/licenses/gpl-3.0.html"}</script>
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#top">
+      <img src="assets/locus-64.png" alt="Locus icon">Locus</a>
+    <nav class="nav-links">
+      <a href="#who">Who it's for</a>
+      <a href="#board">The board</a>
+      <a href="#claude">Claude Code</a>
+      <a href="#start">Get started</a>
+      <a href="https://github.com/oernster/locus">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main id="top">
+  <section class="hero">
+    <div class="container">
+      <img class="logo" src="assets/locus-256.png" alt="Locus icon">
+      <h1>Locus</h1>
+      <div class="tagline">Where intent meets attention</div>
+      <p class="lede">A native Windows productivity tool that merges a four-stage
+        task board with automatic, OS-level focus tracking. It tells you whether
+        the work you planned matched the application you were actually in, with no
+        manual input.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/oernster/locus">View on GitHub</a>
+        <a class="btn btn-ghost" href="#start">Get started</a>
+      </div>
+      <p class="release-note">Most task tools track intent. Most time trackers
+        record raw clock time. Locus is the one that checks the two matched.</p>
+      <div class="badges">
+        <span>Local-first</span>·<span>No telemetry, no cloud, no accounts</span>
+        ·<span>Single Go binary, no CGO</span>·<span>GPL-3.0</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="board" class="alt">
+    <div class="container">
+      <div class="eyebrow">One surface</div>
+      <h2 class="section-title">A board and a focus tracker in the same window</h2>
+      <p class="section-sub">Work moves through four fixed stages. Above it, Focus
+        History ranks the applications that actually held your attention across
+        today, yesterday, this week or this month. Claude Code activity flows onto
+        the board live, marked with an amber left border.</p>
+      <div class="boardwrap">
+        <div class="board" role="img" aria-label="The Locus board: a focus-history panel above a four-stage task board">
+          <div class="topbar">
+            <span class="name">🏷 Refactor sprint</span>
+            <span class="spacer"></span>
+            <span class="pill go">▶ Start</span>
+            <span class="pill">＋ Add</span>
+          </div>
+          <div class="focus">
+            <div class="flabel">Focus History · Today</div>
+            <div class="frow"><span class="app">VS Code</span><span class="track"><span class="fill" style="width:88%"></span></span><span class="time">2h 14m</span></div>
+            <div class="frow"><span class="app">Terminal</span><span class="track"><span class="fill" style="width:40%"></span></span><span class="time">58m</span></div>
+            <div class="frow"><span class="app">Chrome</span><span class="track"><span class="fill" style="width:16%"></span></span><span class="time">21m</span></div>
+          </div>
+          <div class="cols">
+            <div class="col">
+              <h4>Plan</h4>
+              <div class="card">Scope the persistence layer</div>
+            </div>
+            <div class="col">
+              <h4>Execute</h4>
+              <div class="card active">Extract SQLite adapter<span class="meta">In progress · 47m</span></div>
+              <div class="card claude">Edit: persist.go<span class="meta">Claude Code</span></div>
+              <div class="card blocked">Wire migration path<span class="meta">Blocked</span></div>
+            </div>
+            <div class="col">
+              <h4>Check</h4>
+              <div class="card claude">Test: run suite<span class="meta">Claude Code</span></div>
+            </div>
+            <div class="col">
+              <h4>Done</h4>
+              <div class="card done">Boundary tests green</div>
+              <div class="card done claude">Build: compile</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="who">
+    <div class="container">
+      <div class="eyebrow">Who it is for</div>
+      <h2 class="section-title">For people who want to see the gap close</h2>
+      <p class="section-sub">Locus is a small, local productivity tool for Windows.
+        It suits people who plan work deliberately and want an honest, automatic
+        record of where their attention actually went.</p>
+      <div class="split">
+        <div class="panel is-for">
+          <h3>It is for you if</h3>
+          <ul>
+            <li>You are on <b>Windows 10 or 11</b> and want a task board plus focus tracking in <b>one native window</b>.</li>
+            <li>You want to know whether <b>logged time matched real attention</b>: editor versus Discord, deep work versus drift.</li>
+            <li>You use <b>Claude Code</b> and want your session's edits, tests and builds to populate the board automatically.</li>
+            <li>You want your data <b>local and yours</b>: SQLite on disk, no telemetry, no cloud, no accounts.</li>
+          </ul>
+        </div>
+        <div class="panel not-for">
+          <h3>It is not for you if</h3>
+          <ul>
+            <li>You are on <b>macOS or Linux</b>. Focus tracking uses Win32 APIs, so Locus is Windows-only.</li>
+            <li>You want a <b>team board with sync and sharing</b>. Locus is single-user and offline by design.</li>
+            <li>You want <b>flexible custom columns</b>. The four stages are fixed; only their labels are renameable.</li>
+            <li>You are uncomfortable with a tool that <b>watches foreground focus</b>, even though it never leaves your machine.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stages" class="alt">
+    <div class="container">
+      <div class="eyebrow">The board model</div>
+      <h2 class="section-title">Four fixed stages, tasks that are units of execution</h2>
+      <p class="section-sub">Stages have stable internal IDs and renameable labels.
+        Tasks carry a status (Not Started, In Progress, Blocked, Complete) and are
+        timed at the task level, with only one session active at a time.</p>
+      <div class="stages">
+        <div class="stage"><h3>Plan</h3><p>Scope the work before you start it. Research and shaping live here.</p></div>
+        <div class="stage"><h3>Execute</h3><p>Active units of work. Sessions time attention against the task you pinned at start.</p></div>
+        <div class="stage"><h3>Check</h3><p>Verify what was built. Test runs from Claude Code land here automatically.</p></div>
+        <div class="stage"><h3>Done</h3><p>Completed work. A named snapshot is saved automatically at session end.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="claude">
+    <div class="container">
+      <div class="eyebrow">Claude Code integration</div>
+      <h2 class="section-title">Your session builds the board as you work</h2>
+      <p class="section-sub">Hook scripts and a skill file are installed and removed
+        automatically by the installer. Each meaningful tool call appears as a
+        board card with an amber left border, routed to the right stage and moved
+        to Done when it succeeds. Trivial commands are filtered out.</p>
+      <div class="features">
+        <div class="feature"><div class="fnum">01</div><h3>Edits start at Execute</h3><p><code>Edit</code>, <code>Write</code> and <code>NotebookEdit</code> tool calls appear at Execute, labelled by filename.</p></div>
+        <div class="feature"><div class="fnum">02</div><h3>Tests start at Check</h3><p><code>Bash</code> calls with test keywords (<code>go test</code>, <code>pytest</code>, <code>jest</code>) route to Check; other meaningful commands go to Execute.</p></div>
+        <div class="feature"><div class="fnum">03</div><h3>Success moves to Done</h3><p>On a successful command the card moves to Done. On failure it stays in place, so what stalled stays visible.</p></div>
+        <div class="feature"><div class="fnum">04</div><h3>Noise is dropped</h3><p>Trivial commands like <code>cd</code>, <code>ls</code> and <code>cat</code> are filtered. Compound commands strip the trivial prefix first.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="focus" class="alt">
+    <div class="container">
+      <div class="eyebrow">Focus intelligence</div>
+      <h2 class="section-title">Native tracking, no external tools</h2>
+      <p class="section-sub">Locus reads foreground focus through the Windows
+        <code>GetForegroundWindow</code> and <code>QueryFullProcessImageNameW</code>
+        APIs, polling every 500ms into the same SQLite database as your tasks.
+        Focus data is available from first launch.</p>
+      <div class="features">
+        <div class="feature"><div class="fnum">A</div><h3>Real app names</h3><p>Resolved from Windows PE version info, falling back to product name then the executable stem. No hardcoded mappings.</p></div>
+        <div class="feature"><div class="fnum">B</div><h3>Idle-aware</h3><p>Gaps over five minutes are detected and subtracted from deep-work time, so idle does not count as focus.</p></div>
+        <div class="feature"><div class="fnum">C</div><h3>System noise filtered</h3><p>Processes under <code>C:\Windows\</code> are excluded automatically, leaving the applications you chose to open.</p></div>
+        <div class="feature"><div class="fnum">D</div><h3>Four time windows</h3><p>Today, Yesterday, This Week (ISO) and This Month, ranked by total focus time with today refreshing every two seconds.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="start">
+    <div class="container">
+      <div class="eyebrow">Get started</div>
+      <h2 class="section-title">One command to build, install and launch</h2>
+      <p class="section-sub">Locus is a Go and Wails application. The installer
+        builds it, installs to <code>%LOCALAPPDATA%\locus\</code>, registers
+        auto-start on login and launches it, all per-user with no administrator
+        rights.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="n"></div>
+          <div>
+            <h3>Prerequisites</h3>
+            <p>Go 1.21+, Node.js 20+ and Windows 10 or 11. WebView2 ships with Windows 11; on Windows 10 install it from Microsoft. The Wails CLI is installed for you if missing.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n"></div>
+          <div>
+            <h3>Install</h3>
+            <p>Run <code>.\install.ps1</code> from the project root. It builds the single <code>locus.exe</code>, installs it, sets up Claude Code hooks and the skill, and launches.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n"></div>
+          <div>
+            <h3>Restart Claude CLI</h3>
+            <p>Restart Claude Code so the hooks take effect. Then run <code>/go locus</code> at the start of a session to load the skill context.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n"></div>
+          <div>
+            <h3>Uninstall any time</h3>
+            <p><code>.\uninstall.ps1</code> stops the app, removes the startup key and deletes the install directory. Your board data is kept. Add <code>-PurgeData</code> to remove it too.</p>
+          </div>
+        </div>
+      </div>
+      <div class="codeblock">
+<pre><span class="c"># One-shot install: build, install, auto-start, launch</span>
+git clone https://github.com/oernster/locus
+cd locus
+.\install.ps1
+
+<span class="c"># Or a development build with hot reload</span>
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+cd frontend <span class="p">&amp;&amp;</span> npm install <span class="p">&amp;&amp;</span> cd ..
+wails dev
+
+<span class="c"># Production build (outputs build\bin\locus.exe)</span>
+wails build</pre>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="container footer-inner">
+    <div>
+      <strong>Locus</strong>: task board and native focus tracking for Windows<br>
+      (c) 2026 Oliver Ernster · Local-first · GPL-3.0 · v<!--VERSION-->1.0.0<!--/VERSION-->
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/oernster/locus">GitHub</a>
+      <a href="https://oernster.github.io/">Project hub</a>
+      <a href="https://www.crankthecode.com/">crankthecode.com</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
