@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Locus exists: intent checked against attention</title>
+<meta name="description" content="Why Locus was built: task tools record what you planned and time trackers record raw clock time; nothing checks the two matched. Locus puts a four-stage board and native Windows focus tracking in one local window.">
+<meta name="author" content="Oliver Ernster">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0f1115">
+<link rel="canonical" href="https://ernster.dev/locus/why.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Locus">
+<meta property="og:title" content="Why Locus exists: intent checked against attention">
+<meta property="og:description" content="Task tools record what you planned and time trackers record raw clock time; nothing checks the two matched. Locus puts a four-stage board and native Windows focus tracking in one local window.">
+<meta property="og:url" content="https://ernster.dev/locus/why.html">
+<meta property="og:image" content="https://ernster.dev/locus/assets/locus-512.png">
+<meta property="og:image:alt" content="The Locus application icon">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Why Locus exists: intent checked against attention">
+<meta name="twitter:description" content="Task tools record what you planned and time trackers record raw clock time; nothing checks the two matched. Locus puts a board and native focus tracking in one local window.">
+<meta name="twitter:image" content="https://ernster.dev/locus/assets/locus-512.png">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/locus-64.png">
+<link rel="apple-touch-icon" href="assets/locus-256.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html">
+      <img src="assets/locus-64.png" alt="Locus icon">Locus</a>
+    <nav class="nav-links">
+      <a href="index.html#who">Who it's for</a>
+      <a href="index.html#board">The board</a>
+      <a href="index.html#claude">Claude Code</a>
+      <a href="why.html">Why</a>
+      <a href="index.html#start">Get started</a>
+      <a href="https://github.com/oernster/locus">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section id="exists">
+    <div class="container prose">
+      <div class="eyebrow">The reasoning</div>
+      <h2 class="section-title">Why this exists</h2>
+      <p>Productivity tooling splits into two camps that never talk to each other. Task boards
+        record intent: what you planned to do and what stage it reached. Time trackers record raw
+        clock time: how long some window was open. Neither answers the question that actually
+        matters at the end of a day, which is whether the work you planned is where your attention
+        really went. The gap between the two is where drift lives and no amount of manual logging
+        survives long enough to expose it.</p>
+      <p>Locus closes that gap by putting both halves in one native window. Work moves through
+        four fixed stages (Plan, Execute, Check, Done) while the runtime reads foreground focus
+        directly from the Win32 APIs, polling into the same local SQLite database as the tasks.
+        The record is automatic and honest: idle gaps are subtracted rather than counted, system
+        processes are filtered out and application names come from real PE version info instead of
+        a hardcoded mapping.</p>
+      <p>The third ingredient is the Claude Code integration. Hook scripts route each meaningful
+        tool call onto the board as it happens: edits land at Execute, test runs at Check and a
+        successful command moves its card to Done, while trivial commands are dropped. An AI
+        coding session normally evaporates as scrollback; here it leaves a structured trail on the
+        same board as the work you planned yourself.</p>
+      <p>It is built the way a small Windows tool should be: a single Go binary with no CGO,
+        installed per-user with one PowerShell script, auto-starting on login, with no telemetry,
+        no cloud and no accounts. Locus grew out of two earlier tools (CommandDeck's staged
+        session model and focus-reader's background focus monitor) and is the native Go
+        consolidation of both.</p>
+      <p>Full reasoning at <a href="https://www.crankthecode.com/posts/locus">crankthecode.com</a>.</p>
+      <div class="cta" style="justify-content:flex-start;margin-top:30px;">
+        <a class="btn btn-primary" href="https://github.com/oernster/locus">View on GitHub</a>
+        <a class="btn btn-ghost" href="index.html">Back to overview</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="container footer-inner">
+    <div>
+      <strong>Locus</strong>: task board and native focus tracking for Windows<br>
+      (c) Oliver Ernster · Local-first · GPL-3.0 · v<!--VERSION-->1.0.0<!--/VERSION-->
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/oernster/locus">GitHub</a>
+      <a href="https://ernster.dev/">Project hub</a>
+      <a href="https://www.crankthecode.com/">crankthecode.com</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
