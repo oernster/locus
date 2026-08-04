@@ -253,6 +253,7 @@ No telemetry. No cloud sync. No accounts.
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Layer model, dependency rules, component map, execution flow, design decisions |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Prerequisites, local dev setup, project layout, build pipeline, packaging |
 | [TESTING.md](TESTING.md) | Test categories, structural boundary tests, running the suite, coverage targets |
+| [TECH_DEBT.md](TECH_DEBT.md) | What is still open, what is deliberately left and what only looks like debt |
 
 ---
 
