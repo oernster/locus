@@ -5,8 +5,10 @@ generate:
 	wails generate module
 
 # Production build -> build/bin/locus.exe
+# Goes through build.ps1 so the version reaches the binary and the static files
+# from VERSION rather than from whoever last remembered to edit them.
 build:
-	wails build
+	powershell -ExecutionPolicy Bypass -File build.ps1
 
 # Build + deploy to %LOCALAPPDATA%\locus\ + set Run key + launch
 install:

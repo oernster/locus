@@ -6,7 +6,7 @@
 .DESCRIPTION
     Builds locus.exe via Wails, copies it to %LOCALAPPDATA%\locus\,
     registers it in HKCU\Software\Microsoft\Windows\CurrentVersion\Run so it
-    survives reboots, and starts it immediately.
+    survives reboots, then starts it immediately.
 
     Also installs Claude Code hooks and skill file if Claude CLI is present.
     Restart Claude CLI after installation for the Locus integration to activate.
@@ -175,14 +175,14 @@ try {
 }
 Write-Ok "Frontend dependencies ready."
 
-# 3. Build with Wails
+# 3. Build with Wails, through build.ps1 so the version comes from VERSION
 Write-Step "Building $AppName.exe (this may take a moment)..."
-Push-Location $PSScriptRoot
 try {
-    & wails build
-    if ($LASTEXITCODE -ne 0) { Write-Fail "wails build failed (exit $LASTEXITCODE)" }
-} finally {
-    Pop-Location
+    # build.ps1 throws on failure rather than setting an exit code, because a
+    # called .ps1 leaves $LASTEXITCODE untouched.
+    & (Join-Path $PSScriptRoot 'build.ps1')
+} catch {
+    Write-Fail "build.ps1 failed: $_"
 }
 
 # Wails outputs to build\bin\ by default

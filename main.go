@@ -18,6 +18,7 @@ import (
 	"github.com/oernster/locus/internal/infrastructure/focustracker"
 	"github.com/oernster/locus/internal/infrastructure/persistence"
 	"github.com/oernster/locus/internal/infrastructure/tray"
+	"github.com/oernster/locus/internal/version"
 )
 
 //go:embed all:frontend/dist
@@ -27,6 +28,10 @@ var assets embed.FS
 var appIconPNG []byte
 
 func main() {
+	// Report the version the build stamped in, so a support question can be
+	// answered from the log rather than from the file date of the executable.
+	log.Printf("locus %s starting", version.Version)
+
 	// Resolve DB path: %APPDATA%\locus\locus.db
 	appData := os.Getenv("APPDATA")
 	if appData == "" {
@@ -123,7 +128,7 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 15, G: 17, B: 21, A: 255},
-		OnStartup: app.startup,
+		OnStartup:        app.startup,
 		OnBeforeClose: func(ctx context.Context) bool {
 			// Hide to tray instead of quitting. Tray "Quit" calls runtime.Quit.
 			runtime.WindowHide(ctx)

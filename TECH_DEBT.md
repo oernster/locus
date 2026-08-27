@@ -2,7 +2,7 @@
 
 A standing reference to the project's outstanding technical debt. It records what is still open, weighs whether each item is worth doing and gives the rationale. Every item is a behaviour-preserving internal concern: nothing here proposes reverting a feature or changing any UI or UX behaviour. Scope is the whole repository (the Go backend under `internal/`, the Wails shell, the React front end under `frontend/`, the install scripts and the GitHub Pages site) read against `ARCHITECTURE.md`, `TESTING.md` and `tests/structural/boundary_test.go`.
 
-The Go side of this repository is in good order: 62 files, none over 350 lines, layer boundaries held by an AST scan, `VERSION` as the single source of truth and no hardcoded version anywhere. Everything below concerns the front end, the tooling around both, and one stray file.
+The Go side of this repository is in good order: 62 files, none over 350 lines, layer boundaries held by an AST scan and `VERSION` as the single source of truth, now reaching the binary through `-ldflags` and the static files through `stamp_version.ps1`, with three guards in `tests/structural/version_test.go` holding it there. Everything below concerns the front end, the tooling around both and one stray file.
 
 ---
 
@@ -20,7 +20,7 @@ This is item one because it is the largest untested surface in the repository by
 
 `frontend/src/features/commands/Board.tsx` is over three times the 400-line module cap and is the largest file in the repository by a factor of three. Every other file in the tree, Go and TypeScript alike, is under 450.
 
-`tests/structural/boundary_test.go` enforces layer imports and nothing about size, and it walks Go packages, so nothing measures TypeScript at all.
+`tests/structural/boundary_test.go` enforces layer imports and nothing about size; it walks Go packages, so nothing measures TypeScript at all.
 
 React gives the obvious decomposition for free: the board's rows, the card, the column headers and the state derivation are all extractable as sibling components and hooks without inventing any new concepts. Doing that also makes item 1 tractable, because a 1308-line component is difficult to test at any granularity below the whole thing.
 
@@ -41,7 +41,7 @@ test:
 	go test ./...
 ```
 
-No `-cover`, no `gofmt`, no `go vet`, no `staticcheck` and no `npm run lint`. `TESTING.md` documents `go test ./internal/... -cover` as the coverage command, so the documented workflow and the `make` target already disagree, and the documented one is the more complete.
+No `-cover`, no `gofmt`, no `go vet`, no `staticcheck` and no `npm run lint`. `TESTING.md` documents `go test ./internal/... -cover` as the coverage command, so the documented workflow and the `make` target already disagree; the documented one is the more complete.
 
 The portfolio's Go standard is gofmt, `go vet` and `staticcheck` on every change, with `staticcheck` invoked without a persistent install:
 
@@ -53,7 +53,7 @@ Fold all of it into the `test` target (or a `check` target that `test` depends o
 
 ## 5. Nothing enforces the Go coverage level
 
-Go has no `--cov-fail-under`, so `TESTING.md` records the position in prose and documents which branches are uncoverable. That is honest and it is the right shape for Go, but it means the number can drift downward without anything noticing.
+Go has no `--cov-fail-under`, so `TESTING.md` records the position in prose and documents which branches are uncoverable. That is honest and it is the right shape for Go; it does mean the number can drift downward without anything noticing.
 
 The usual answer is a threshold check in the same target as item 4: run `go test ./internal/... -coverprofile`, parse the total with `go tool cover -func` and fail below a stated figure. It takes a few lines and converts a documented intention into a gate. Pick the figure from what the suite actually achieves today rather than from an aspiration.
 
@@ -61,15 +61,15 @@ The usual answer is a threshold check in the same target as item 4: run `go test
 
 `install.ps1` deploys to `%LOCALAPPDATA%\locus\`, writes an autostart Run key and launches the app; `uninstall.ps1` stops the process, removes the key and removes the directory.
 
-These two scripts are the only things in the repository that change the user's machine outside the application's own data, and neither is tested or exercised by CI. An uninstall that leaves the Run key behind means a deleted application that Windows tries to start at every login.
+These two scripts are the only things in the repository that change the user's machine outside the application's own data; neither is tested or exercised by CI. An uninstall that leaves the Run key behind means a deleted application that Windows tries to start at every login.
 
-A PowerShell test is awkward and probably not worth it. What is worth it is making the pair symmetric by construction: have `install.ps1` write the list of everything it created (key path, install directory, shortcut paths) to a manifest file in the install directory, and have `uninstall.ps1` read that manifest rather than repeating the paths. Then the two cannot drift, which is the actual failure mode.
+A PowerShell test is awkward and probably not worth it. What is worth it is making the pair symmetric by construction: have `install.ps1` write the list of everything it created (key path, install directory, shortcut paths) to a manifest file in the install directory, then have `uninstall.ps1` read that manifest rather than repeating the paths. Then the two cannot drift, which is the actual failure mode.
 
 ---
 
 ## Looks like debt, not worth touching
 
-- `internal/application/service/snapshot_service_test.go` at 449 lines. Over the cap and it is a test file, so it counts, but the Go side has no size rule to enforce and this is the only offender. Worth splitting when next touched.
+- `internal/application/service/snapshot_service_test.go` at 449 lines. Over the cap and it is a test file, so it counts; the Go side has no size rule to enforce and this is the only offender. Worth splitting when next touched.
 - The `hooks/` directory at root holding the Claude Code hook scripts. It is the integration surface, not application code.
 - `locus.exe` and `build/` in the working tree. Build output, correctly untracked.
 - The six tracked PNGs plus the `.ico`. Icon set from a single master, consumed by the Wails build and the site.
@@ -80,8 +80,8 @@ A PowerShell test is awkward and probably not worth it. What is worth it is maki
 These look like candidates but are correct as they stand; changing them would regress or add cost for nothing.
 
 - **`tests/structural/boundary_test.go`.** Domain forbidden from importing application and infrastructure, application forbidden from importing infrastructure, held by import scan. The same invariant the Python projects enforce, in Go, with no framework. Item 2 asks for a size rule beside it, not a replacement.
-- **`VERSION` at root with nothing hardcoding a version string.** Verified clean across the whole tree, Go and TypeScript. One of the tidiest version stories in the portfolio.
+- **`VERSION` at root as the only place a version string is written.** The Go string is set at build time by `-ldflags -X` against `internal/version.Version`, a var rather than a const because `-X` reaches only a var; the PE metadata and the site footers are stamped from the same file by `stamp_version.ps1`, which `build.ps1` runs before every build. `tests/structural/version_test.go` holds all three: the declaration stays a var, no three-part literal but the unstamped sentinel appears in Go source, then the stamped files match `VERSION`. Each was proved by planting a violation and reading the exit code.
 - **The `internal/{domain,application,infrastructure}` layout with a root composition root.** The portfolio's Go structure, correctly applied.
-- **`TESTING.md` documenting uncoverable branches explicitly** rather than hiding them. Naming what cannot be covered, and why, is what makes a coverage number mean anything in Go.
+- **`TESTING.md` documenting uncoverable branches explicitly** rather than hiding them. Naming what cannot be covered, with the reason, is what makes a coverage number mean anything in Go.
 - **The absence of CGO.** Pure Go, single binary, direct Win32. Deliberate and load-bearing.
 - **`install.ps1` and `uninstall.ps1` as PowerShell rather than a bespoke installer.** Locus is a background tool with no UI to install, so a per-user script pair is proportionate. Item 6 concerns their symmetry, not their existence.
