@@ -15,9 +15,9 @@ Most task tools track intent. Most time trackers record raw clock time. Neither 
 
 Locus closes that gap:
 
-- You say you were executing a task. Were you in your editor, or in Discord?
+- You say you were executing a task. Were you in your editor or in Discord?
 - You logged two hours on a review. How much was idle time?
-- Your planning sessions: are you actually in research tools, or drifting?
+- Your planning sessions: are you actually in research tools or drifting?
 
 Locus answers these without any manual input. It tracks OS-level foreground focus natively, recording which application holds your attention at all times while it runs.
 
@@ -85,7 +85,7 @@ Only one session can be active at a time. Starting a session requires selecting 
 
 Locus populates the board automatically from an active Claude Code session. Hook scripts and a skill file are installed and uninstalled automatically by `install.ps1` / `uninstall.ps1`; no manual hook setup needed. Restart Claude CLI after installation for hooks to take effect.
 
-Each `Edit`, `Write`, `NotebookEdit`, or `Bash` tool call appears as a dynamic board card with an **amber left border**:
+Each `Edit`, `Write`, `NotebookEdit` or `Bash` tool call appears as a dynamic board card with an **amber left border**:
 
 - `Edit` / `Write` / `NotebookEdit` start at **EXECUTE**.
 - `Bash` with test keywords (`go test`, `pytest`, `jest`, etc.) starts at **CHECK**.
@@ -110,7 +110,7 @@ Each `Edit`, `Write`, `NotebookEdit`, or `Bash` tool call appears as a dynamic b
 
 **Session end:** board items are kept. A snapshot named `Session YYYY-MM-DD HH:MM` is saved automatically. Items remain visible until you reset or clear the board manually.
 
-Dynamic items coexist with manual items and can be dragged, renamed, and deleted like any manual card.
+Dynamic items coexist with manual items and can be dragged, renamed and deleted like any manual card.
 
 ### Claude Code skill (optional but recommended)
 
@@ -177,7 +177,7 @@ WebView2 runtime is required. It ships with Windows 11. For Windows 10, download
 
 ### One-shot installer (recommended)
 
-Run once from the project root. Builds, installs to `%LOCALAPPDATA%\locus\`, registers for auto-start on every login, and launches immediately.
+Run once from the project root. Builds, installs to `%LOCALAPPDATA%\locus\`, registers for auto-start on every login and launches immediately.
 
 ```powershell
 .\install.ps1
@@ -187,7 +187,7 @@ The Wails CLI is installed automatically if not already present. No administrato
 
 ### Uninstaller
 
-Stops any running instance, removes the startup Run key, and deletes the install directory. Board data in `%APPDATA%\locus\` is kept by default so your tasks and history survive a reinstall.
+Stops any running instance, removes the startup Run key and deletes the install directory. Board data in `%APPDATA%\locus\` is kept by default so your tasks and history survive a reinstall.
 
 ```powershell
 .\uninstall.ps1
@@ -254,6 +254,14 @@ No telemetry. No cloud sync. No accounts.
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Prerequisites, local dev setup, project layout, build pipeline, packaging |
 | [TESTING.md](TESTING.md) | Test categories, structural boundary tests, running the suite, coverage targets |
 | [TECH_DEBT.md](TECH_DEBT.md) | What is still open, what is deliberately left and what only looks like debt |
+
+---
+
+## Supporting the project
+
+Locus is free and stays free. There is no paid tier, no licence key and no feature held back behind a donation. If it has saved you time or simply been useful, a donation supports its maintenance and continued development.
+
+<a href="https://www.paypal.com/ncp/payment/NQNJ6A6T5RTBN"><img src="docs/donate.png" alt="Donate to Locus" width="120"></a>
 
 ---
 
