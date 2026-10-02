@@ -13,6 +13,11 @@
 # Each carries a delimited token or a known key; this script overwrites
 # whatever sits inside it. Running it against an already-current tree changes
 # nothing and prints nothing, so it is safe to run on every build.
+#
+# The site's local stylesheet and script links also carry their file's content
+# hash, as styles.css?v=<hash>. GitHub Pages lets a browser keep a stylesheet
+# for ten minutes, so a fresh page could otherwise be drawn with the old one;
+# a changed file is a new address instead.
 
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
@@ -48,9 +53,57 @@ Get-ChildItem -Path (Join-Path $root 'docs') -Recurse -Include *.html | ForEach-
     Set-Stamped -Path $_.FullName -Original $page -Updated $stampedPage
 }
 
-if ($touched.Count -eq 0) {
-    Write-Host "Version $version already stamped everywhere."
-} else {
+# The asset links. A link names a local file by a relative path; any query it
+# already carries is replaced and a fragment is kept. The hash reads CRLF as
+# LF, so a Windows checkout and the LF blob GitHub serves agree.
+$assetHashLength = 10
+$assetLink = '(?<attr>\b(?:href|src)=)(?<quote>["''])(?<path>[^"''?#]+\.(?:css|js))(?:\?[^"''#]*)?(?<fragment>#[^"'']*)?\k<quote>'
+$linked = @()
+
+function Get-AssetHash {
+    param([string]$Path)
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw "A site page links $Path, which does not exist; nothing hashed."
+    }
+    # Latin-1 maps every byte to one character, so the CRLF swap is exact.
+    $latin1 = [System.Text.Encoding]::GetEncoding('iso-8859-1')
+    $bytes = $latin1.GetBytes($latin1.GetString([System.IO.File]::ReadAllBytes($Path)).Replace("`r`n", "`n"))
+    $digest = [System.Security.Cryptography.SHA256]::Create().ComputeHash($bytes)
+    (-join ($digest | ForEach-Object { $_.ToString('x2') })).Substring(0, $assetHashLength)
+}
+
+function Add-AssetHashes {
+    param([string]$Page, [string]$Directory)
+    [regex]::Replace($Page, $assetLink, {
+        param($link)
+        $path = $link.Groups['path'].Value
+        # Remote, protocol-relative and root-absolute links are not this site's files.
+        if ($path.StartsWith('/') -or $path.Contains(':')) {
+            return $link.Value
+        }
+        $quote = $link.Groups['quote'].Value
+        '{0}{1}{2}?v={3}{4}{1}' -f $link.Groups['attr'].Value, $quote, $path,
+            (Get-AssetHash (Join-Path $Directory $path)), $link.Groups['fragment'].Value
+    })
+}
+
+Get-ChildItem -Path (Join-Path $root 'docs') -Recurse -Include *.html | ForEach-Object {
+    $page = [System.IO.File]::ReadAllText($_.FullName)
+    $linkedPage = Add-AssetHashes -Page $page -Directory $_.DirectoryName
+    if ($linkedPage -ne $page) {
+        [System.IO.File]::WriteAllText($_.FullName, $linkedPage)
+        $linked += (Resolve-Path -Relative $_.FullName)
+    }
+}
+
+if ($touched.Count -eq 0 -and $linked.Count -eq 0) {
+    Write-Host "Version $version and asset hashes already stamped everywhere."
+}
+if ($touched.Count -gt 0) {
     Write-Host "Stamped version $version into:"
     $touched | ForEach-Object { Write-Host "  $_" }
+}
+if ($linked.Count -gt 0) {
+    Write-Host "Stamped asset hashes into:"
+    $linked | ForEach-Object { Write-Host "  $_" }
 }

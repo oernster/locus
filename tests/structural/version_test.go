@@ -1,6 +1,9 @@
 package structural_test
 
 import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -177,5 +180,57 @@ func TestStaticFilesAreStamped(t *testing.T) {
 			t.Errorf("%s: stamped %q, VERSION says %q; run ./stamp_version.ps1",
 				stamp.path, match[1], stamp.want)
 		}
+	}
+}
+
+// assetHashLength is how many hex characters of the SHA-256 a link carries.
+const assetHashLength = 10
+
+// assetLink finds a stylesheet or script link and whatever query it carries.
+var assetLink = regexp.MustCompile(`\b(?:href|src)=["']([^"'?#]+\.(?:css|js))(\?[^"'#]*)?`)
+
+// TestSiteAssetLinksCarryTheirHash catches a stylesheet or script that changed
+// while the pages kept linking the old address, which a browser may still hold
+// for ten minutes. The hash reads CRLF as LF, as the stamp does, so a Windows
+// checkout agrees with GitHub's blob. Run ./stamp_version.ps1 to repair it.
+func TestSiteAssetLinksCarryTheirHash(t *testing.T) {
+	root, err := findProjectRoot()
+	if err != nil {
+		t.Fatalf("cannot find project root: %v", err)
+	}
+	pages, err := filepath.Glob(filepath.Join(root, "docs", "*.html"))
+	if err != nil {
+		t.Fatalf("glob docs: %v", err)
+	}
+
+	checked := 0
+	for _, page := range pages {
+		rel, _ := filepath.Rel(root, page)
+		raw, err := os.ReadFile(page)
+		if err != nil {
+			t.Fatalf("read %s: %v", rel, err)
+		}
+		for _, link := range assetLink.FindAllStringSubmatch(string(raw), -1) {
+			path, query := link[1], link[2]
+			// Remote, protocol-relative and root-absolute links are not the site's files.
+			if strings.HasPrefix(path, "/") || strings.Contains(path, ":") {
+				continue
+			}
+			content, err := os.ReadFile(filepath.Join(filepath.Dir(page), path))
+			if err != nil {
+				t.Errorf("%s links %s, which cannot be read: %v", rel, path, err)
+				continue
+			}
+			digest := sha256.Sum256(bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n")))
+			want := "?v=" + hex.EncodeToString(digest[:])[:assetHashLength]
+			if query != want {
+				t.Errorf("%s links %s%s, its content says %s%s; run ./stamp_version.ps1",
+					rel, path, query, path, want)
+			}
+			checked++
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no local stylesheet or script links found: the guard would pass by covering nothing")
 	}
 }
