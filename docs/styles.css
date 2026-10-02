@@ -394,8 +394,9 @@ footer {
 }
 @media (max-width: 640px) {
   .nav-links { gap: 16px; }
-  .nav-links a:nth-child(1),
-  .nav-links a:nth-child(2) { display: none; }
+  /* The nav links pages now, so Features and Why stay; GitHub, the last link,
+     gives way on a phone since the footer carries it too. */
+  .nav-links a:last-child { display: none; }
   .step { grid-template-columns: 1fr; }
   .step .n { display: none; }
   .frow { grid-template-columns: 76px 1fr 54px; }

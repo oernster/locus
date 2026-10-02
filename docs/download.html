@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get started with Locus: build, install and launch</title>
+<meta name="description" content="Get Locus running on Windows 10 or 11: one PowerShell script builds the single locus.exe, installs it per-user with no administrator rights, registers auto-start on login and launches it. Free; uninstall any time.">
+<meta name="author" content="Oliver Ernster">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0f1115">
+<link rel="canonical" href="https://ernster.dev/locus/download.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Locus">
+<meta property="og:title" content="Get started with Locus: build, install and launch">
+<meta property="og:description" content="One PowerShell script builds the single locus.exe, installs it per-user with no administrator rights, registers auto-start on login and launches it.">
+<meta property="og:url" content="https://ernster.dev/locus/download.html">
+<meta property="og:image" content="https://ernster.dev/locus/assets/locus-512.png">
+<meta property="og:image:alt" content="The Locus application icon">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Get started with Locus: build, install and launch">
+<meta name="twitter:description" content="One PowerShell script builds, installs and launches Locus per-user on Windows 10 or 11. Free and local-first.">
+<meta name="twitter:image" content="https://ernster.dev/locus/assets/locus-512.png">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/locus-64.png">
+<link rel="apple-touch-icon" href="assets/locus-256.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="./">
+      <img src="assets/locus-64.png" alt="Locus icon">Locus</a>
+    <nav class="nav-links">
+      <a href="features.html">Features</a>
+      <a href="why.html">Why</a>
+      <a href="download.html">Get started</a>
+      <a href="https://github.com/oernster/locus">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section id="start">
+    <div class="container">
+      <div class="eyebrow">Get started</div>
+      <h2 class="section-title">One command to build, install and launch</h2>
+      <p class="section-sub">Locus is a Go and Wails application. The installer
+        builds it, installs to <code>%LOCALAPPDATA%\locus\</code>, registers
+        auto-start on login and launches it, all per-user with no administrator
+        rights.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="n"></div>
+          <div>
+            <h3>Prerequisites</h3>
+            <p>Go 1.21+, Node.js 20+ and Windows 10 or 11. WebView2 ships with Windows 11; on Windows 10 install it from Microsoft. The Wails CLI is installed for you if missing.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n"></div>
+          <div>
+            <h3>Install</h3>
+            <p>Run <code>.\install.ps1</code> from the project root. It builds the single <code>locus.exe</code>, installs it, sets up Claude Code hooks and the skill, then launches.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n"></div>
+          <div>
+            <h3>Restart Claude CLI</h3>
+            <p>Restart Claude Code so the hooks take effect. Then run <code>/go locus</code> at the start of a session to load the skill context.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="n"></div>
+          <div>
+            <h3>Uninstall any time</h3>
+            <p><code>.\uninstall.ps1</code> stops the app, removes the startup key and deletes the install directory. Your board data is kept. Add <code>-PurgeData</code> to remove it too.</p>
+          </div>
+        </div>
+      </div>
+      <div class="codeblock">
+<pre><span class="c"># One-shot install: build, install, auto-start, launch</span>
+git clone https://github.com/oernster/locus
+cd locus
+.\install.ps1
+
+<span class="c"># Or a development build with hot reload</span>
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+cd frontend <span class="p">&amp;&amp;</span> npm install <span class="p">&amp;&amp;</span> cd ..
+wails dev
+
+<span class="c"># Production build (outputs build\bin\locus.exe)</span>
+wails build</pre>
+      </div>
+    </div>
+  </section>
+  <section id="support" class="alt">
+    <div class="container">
+      <div class="eyebrow">Support</div>
+      <h2 class="section-title">Supporting Locus</h2>
+      <p class="section-sub">Locus is free and stays free. There is no paid tier, no licence key and no
+        feature held back behind a donation. If it has saved you time or simply been useful, a
+        contribution supports its maintenance and continued development.</p>
+      <div class="cta">
+        <a class="btn btn-ghost btn-donate" href="https://www.paypal.com/ncp/payment/NQNJ6A6T5RTBN"><img src="donate.png" alt="">Donate</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="container footer-inner">
+    <div>
+      <strong>Locus</strong>: task board and native focus tracking for Windows<br>
+      (c) Oliver Ernster · Local-first · GPL-3.0 · v<!--VERSION-->1.2.3<!--/VERSION-->
+    </div>
+    <div class="footer-links">
+      <a href="./">Home</a>
+      <a href="features.html">Features</a>
+      <a href="why.html">Why</a>
+      <a href="download.html">Get started</a>
+      <a href="https://github.com/oernster/locus">GitHub</a>
+      <a href="https://ernster.dev/">Project hub</a>
+      <a href="https://www.crankthecode.com/">crankthecode.com</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

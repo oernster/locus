@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Locus features: the board, Claude Code and focus tracking</title>
+<meta name="description" content="What Locus does: four fixed stages with renameable labels, Claude Code tool calls routed onto the board as cards and native Windows focus tracking that subtracts idle time and filters system noise.">
+<meta name="author" content="Oliver Ernster">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0f1115">
+<link rel="canonical" href="https://ernster.dev/locus/features.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Locus">
+<meta property="og:title" content="Locus features: the board, Claude Code and focus tracking">
+<meta property="og:description" content="Four fixed stages with renameable labels, Claude Code tool calls routed onto the board as cards and native Windows focus tracking that subtracts idle time and filters system noise.">
+<meta property="og:url" content="https://ernster.dev/locus/features.html">
+<meta property="og:image" content="https://ernster.dev/locus/assets/locus-512.png">
+<meta property="og:image:alt" content="The Locus application icon">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Locus features: the board, Claude Code and focus tracking">
+<meta name="twitter:description" content="Four fixed stages, Claude Code tool calls routed onto the board and native Windows focus tracking. Local-first.">
+<meta name="twitter:image" content="https://ernster.dev/locus/assets/locus-512.png">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/locus-64.png">
+<link rel="apple-touch-icon" href="assets/locus-256.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="./">
+      <img src="assets/locus-64.png" alt="Locus icon">Locus</a>
+    <nav class="nav-links">
+      <a href="features.html">Features</a>
+      <a href="why.html">Why</a>
+      <a href="download.html">Get started</a>
+      <a href="https://github.com/oernster/locus">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section id="features">
+    <div class="container">
+      <div class="eyebrow">Features</div>
+      <h2 class="section-title">What Locus does</h2>
+      <p class="section-sub">Three things share one native window: a board of four fixed
+        stages, a Claude Code session that builds that board as you work and native focus
+        tracking that records where your attention actually went. Each is set out below.</p>
+    </div>
+  </section>
+
+  <section id="stages" class="alt">
+    <div class="container">
+      <div class="eyebrow">The board model</div>
+      <h2 class="section-title">Four fixed stages, tasks that are units of execution</h2>
+      <p class="section-sub">Stages have stable internal IDs and renameable labels.
+        Tasks carry a status (Not Started, In Progress, Blocked, Complete) and are
+        timed at the task level, with only one session active at a time.</p>
+      <div class="stages">
+        <div class="stage"><h3>Plan</h3><p>Scope the work before you start it. Research and shaping live here.</p></div>
+        <div class="stage"><h3>Execute</h3><p>Active units of work. Sessions time attention against the task you pinned at start.</p></div>
+        <div class="stage"><h3>Check</h3><p>Verify what was built. Test runs from Claude Code land here automatically.</p></div>
+        <div class="stage"><h3>Done</h3><p>Completed work. A named snapshot is saved automatically at session end.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="claude">
+    <div class="container">
+      <div class="eyebrow">Claude Code integration</div>
+      <h2 class="section-title">Your session builds the board as you work</h2>
+      <p class="section-sub">Hook scripts and a skill file are installed and removed
+        automatically by the installer. Each meaningful tool call appears as a
+        board card with an amber left border, routed to the right stage and moved
+        to Done when it succeeds. Trivial commands are filtered out.</p>
+      <div class="features">
+        <div class="feature"><div class="fnum">01</div><h3>Edits start at Execute</h3><p><code>Edit</code>, <code>Write</code> and <code>NotebookEdit</code> tool calls appear at Execute, labelled by filename.</p></div>
+        <div class="feature"><div class="fnum">02</div><h3>Tests start at Check</h3><p><code>Bash</code> calls with test keywords (<code>go test</code>, <code>pytest</code>, <code>jest</code>) route to Check; other meaningful commands go to Execute.</p></div>
+        <div class="feature"><div class="fnum">03</div><h3>Success moves to Done</h3><p>On a successful command the card moves to Done. On failure it stays in place, so what stalled stays visible.</p></div>
+        <div class="feature"><div class="fnum">04</div><h3>Noise is dropped</h3><p>Trivial commands like <code>cd</code>, <code>ls</code> and <code>cat</code> are filtered. Compound commands strip the trivial prefix first.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="focus" class="alt">
+    <div class="container">
+      <div class="eyebrow">Focus intelligence</div>
+      <h2 class="section-title">Native tracking, no external tools</h2>
+      <p class="section-sub">Locus reads foreground focus through the Windows
+        <code>GetForegroundWindow</code> and <code>QueryFullProcessImageNameW</code>
+        APIs, polling every 500ms into the same SQLite database as your tasks.
+        Focus data is available from first launch.</p>
+      <div class="features">
+        <div class="feature"><div class="fnum">A</div><h3>Real app names</h3><p>Resolved from Windows PE version info, falling back to product name then the executable stem. No hardcoded mappings.</p></div>
+        <div class="feature"><div class="fnum">B</div><h3>Idle-aware</h3><p>Gaps over five minutes are detected and subtracted from deep-work time, so idle does not count as focus.</p></div>
+        <div class="feature"><div class="fnum">C</div><h3>System noise filtered</h3><p>Processes under <code>C:\Windows\</code> are excluded automatically, leaving the applications you chose to open.</p></div>
+        <div class="feature"><div class="fnum">D</div><h3>Four time windows</h3><p>Today, Yesterday, This Week (ISO) and This Month, ranked by total focus time with today refreshing every two seconds.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="container footer-inner">
+    <div>
+      <strong>Locus</strong>: task board and native focus tracking for Windows<br>
+      (c) Oliver Ernster · Local-first · GPL-3.0 · v<!--VERSION-->1.2.3<!--/VERSION-->
+    </div>
+    <div class="footer-links">
+      <a href="./">Home</a>
+      <a href="features.html">Features</a>
+      <a href="why.html">Why</a>
+      <a href="download.html">Get started</a>
+      <a href="https://github.com/oernster/locus">GitHub</a>
+      <a href="https://ernster.dev/">Project hub</a>
+      <a href="https://www.crankthecode.com/">crankthecode.com</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

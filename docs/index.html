@@ -31,11 +31,9 @@
     <a class="brand" href="#top">
       <img src="assets/locus-64.png" alt="Locus icon">Locus</a>
     <nav class="nav-links">
-      <a href="#who">Who it's for</a>
-      <a href="#board">The board</a>
-      <a href="#claude">Claude Code</a>
+      <a href="features.html">Features</a>
       <a href="why.html">Why</a>
-      <a href="#start">Get started</a>
+      <a href="download.html">Get started</a>
       <a href="https://github.com/oernster/locus">GitHub</a>
     </nav>
   </div>
@@ -52,7 +50,7 @@
         manual input.</p>
       <div class="cta">
         <a class="btn btn-primary" href="https://github.com/oernster/locus">View on GitHub</a>
-        <a class="btn btn-ghost" href="#start">Get started</a>
+        <a class="btn btn-ghost" href="download.html">Get started</a>
       </div>
       <p class="release-note">Most task tools track intent. Most time trackers
         record raw clock time. Locus is the one that checks the two matched.</p>
@@ -140,123 +138,6 @@
       </div>
     </div>
   </section>
-
-  <section id="stages" class="alt">
-    <div class="container">
-      <div class="eyebrow">The board model</div>
-      <h2 class="section-title">Four fixed stages, tasks that are units of execution</h2>
-      <p class="section-sub">Stages have stable internal IDs and renameable labels.
-        Tasks carry a status (Not Started, In Progress, Blocked, Complete) and are
-        timed at the task level, with only one session active at a time.</p>
-      <div class="stages">
-        <div class="stage"><h3>Plan</h3><p>Scope the work before you start it. Research and shaping live here.</p></div>
-        <div class="stage"><h3>Execute</h3><p>Active units of work. Sessions time attention against the task you pinned at start.</p></div>
-        <div class="stage"><h3>Check</h3><p>Verify what was built. Test runs from Claude Code land here automatically.</p></div>
-        <div class="stage"><h3>Done</h3><p>Completed work. A named snapshot is saved automatically at session end.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="claude">
-    <div class="container">
-      <div class="eyebrow">Claude Code integration</div>
-      <h2 class="section-title">Your session builds the board as you work</h2>
-      <p class="section-sub">Hook scripts and a skill file are installed and removed
-        automatically by the installer. Each meaningful tool call appears as a
-        board card with an amber left border, routed to the right stage and moved
-        to Done when it succeeds. Trivial commands are filtered out.</p>
-      <div class="features">
-        <div class="feature"><div class="fnum">01</div><h3>Edits start at Execute</h3><p><code>Edit</code>, <code>Write</code> and <code>NotebookEdit</code> tool calls appear at Execute, labelled by filename.</p></div>
-        <div class="feature"><div class="fnum">02</div><h3>Tests start at Check</h3><p><code>Bash</code> calls with test keywords (<code>go test</code>, <code>pytest</code>, <code>jest</code>) route to Check; other meaningful commands go to Execute.</p></div>
-        <div class="feature"><div class="fnum">03</div><h3>Success moves to Done</h3><p>On a successful command the card moves to Done. On failure it stays in place, so what stalled stays visible.</p></div>
-        <div class="feature"><div class="fnum">04</div><h3>Noise is dropped</h3><p>Trivial commands like <code>cd</code>, <code>ls</code> and <code>cat</code> are filtered. Compound commands strip the trivial prefix first.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="focus" class="alt">
-    <div class="container">
-      <div class="eyebrow">Focus intelligence</div>
-      <h2 class="section-title">Native tracking, no external tools</h2>
-      <p class="section-sub">Locus reads foreground focus through the Windows
-        <code>GetForegroundWindow</code> and <code>QueryFullProcessImageNameW</code>
-        APIs, polling every 500ms into the same SQLite database as your tasks.
-        Focus data is available from first launch.</p>
-      <div class="features">
-        <div class="feature"><div class="fnum">A</div><h3>Real app names</h3><p>Resolved from Windows PE version info, falling back to product name then the executable stem. No hardcoded mappings.</p></div>
-        <div class="feature"><div class="fnum">B</div><h3>Idle-aware</h3><p>Gaps over five minutes are detected and subtracted from deep-work time, so idle does not count as focus.</p></div>
-        <div class="feature"><div class="fnum">C</div><h3>System noise filtered</h3><p>Processes under <code>C:\Windows\</code> are excluded automatically, leaving the applications you chose to open.</p></div>
-        <div class="feature"><div class="fnum">D</div><h3>Four time windows</h3><p>Today, Yesterday, This Week (ISO) and This Month, ranked by total focus time with today refreshing every two seconds.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="start">
-    <div class="container">
-      <div class="eyebrow">Get started</div>
-      <h2 class="section-title">One command to build, install and launch</h2>
-      <p class="section-sub">Locus is a Go and Wails application. The installer
-        builds it, installs to <code>%LOCALAPPDATA%\locus\</code>, registers
-        auto-start on login and launches it, all per-user with no administrator
-        rights.</p>
-      <div class="steps">
-        <div class="step">
-          <div class="n"></div>
-          <div>
-            <h3>Prerequisites</h3>
-            <p>Go 1.21+, Node.js 20+ and Windows 10 or 11. WebView2 ships with Windows 11; on Windows 10 install it from Microsoft. The Wails CLI is installed for you if missing.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="n"></div>
-          <div>
-            <h3>Install</h3>
-            <p>Run <code>.\install.ps1</code> from the project root. It builds the single <code>locus.exe</code>, installs it, sets up Claude Code hooks and the skill, then launches.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="n"></div>
-          <div>
-            <h3>Restart Claude CLI</h3>
-            <p>Restart Claude Code so the hooks take effect. Then run <code>/go locus</code> at the start of a session to load the skill context.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="n"></div>
-          <div>
-            <h3>Uninstall any time</h3>
-            <p><code>.\uninstall.ps1</code> stops the app, removes the startup key and deletes the install directory. Your board data is kept. Add <code>-PurgeData</code> to remove it too.</p>
-          </div>
-        </div>
-      </div>
-      <div class="codeblock">
-<pre><span class="c"># One-shot install: build, install, auto-start, launch</span>
-git clone https://github.com/oernster/locus
-cd locus
-.\install.ps1
-
-<span class="c"># Or a development build with hot reload</span>
-go install github.com/wailsapp/wails/v2/cmd/wails@latest
-cd frontend <span class="p">&amp;&amp;</span> npm install <span class="p">&amp;&amp;</span> cd ..
-wails dev
-
-<span class="c"># Production build (outputs build\bin\locus.exe)</span>
-wails build</pre>
-      </div>
-    </div>
-  </section>
-  <section id="support" class="alt">
-    <div class="container">
-      <div class="eyebrow">Support</div>
-      <h2 class="section-title">Supporting Locus</h2>
-      <p class="section-sub">Locus is free and stays free. There is no paid tier, no licence key and no
-        feature held back behind a donation. If it has saved you time or simply been useful, a
-        contribution supports its maintenance and continued development.</p>
-      <div class="cta">
-        <a class="btn btn-ghost btn-donate" href="https://www.paypal.com/ncp/payment/NQNJ6A6T5RTBN"><img src="donate.png" alt="">Donate</a>
-      </div>
-    </div>
-  </section>
 </main>
 <footer>
   <div class="container footer-inner">
@@ -265,6 +146,10 @@ wails build</pre>
       (c) Oliver Ernster · Local-first · GPL-3.0 · v<!--VERSION-->1.2.3<!--/VERSION-->
     </div>
     <div class="footer-links">
+      <a href="./">Home</a>
+      <a href="features.html">Features</a>
+      <a href="why.html">Why</a>
+      <a href="download.html">Get started</a>
       <a href="https://github.com/oernster/locus">GitHub</a>
       <a href="https://ernster.dev/">Project hub</a>
       <a href="https://www.crankthecode.com/">crankthecode.com</a>
